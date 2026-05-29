@@ -1,7 +1,11 @@
+import json
+import time
+
 import pygame
 
 from config import (
     BACKGROUND_COLOR,
+    DATA_DIR,
     FPS,
     GAME_TITLE,
     PLOT_BORDER_COLOR,
@@ -9,6 +13,8 @@ from config import (
     PLOT_EMPTY_COLOR,
     PLOT_GAP,
     PLOT_LOCKED_COLOR,
+    PLOT_PLANTED_COLOR,
+    PLOT_PLANTED_TEXT_COLOR,
     PLOT_SIZE,
     PLOT_START_X,
     PLOT_START_Y,
@@ -19,7 +25,12 @@ from config import (
     TEXT_COLOR,
 )
 from models.plot import Plot
-from utils.constants import PLOT_EMPTY, PLOT_LOCKED
+from utils.constants import (
+    CROP_STARBUBBLE_RADISH,
+    PLOT_EMPTY,
+    PLOT_LOCKED,
+    PLOT_PLANTED,
+)
 
 
 class Game:
@@ -36,7 +47,10 @@ class Game:
         self.running = True
 
         self.font = pygame.font.SysFont("Microsoft YaHei", 24)
-        self.message = "Version 0.2: Click a plot to check its status."
+        self.crop_data = self.load_crop_data()
+        self.selected_crop_id = CROP_STARBUBBLE_RADISH
+
+        self.message = "Version 0.3: Click an empty plot to plant Starbubble Radish."
 
         self.plots = self.create_plots()
 
@@ -73,6 +87,13 @@ class Game:
             plots.append(plot)
 
         return plots
+    
+    def load_crop_data(self) -> dict:
+        """Load crop data from data/crops.json."""
+        crops_path = DATA_DIR / "crops.json"
+
+        with crops_path.open("r", encoding="utf-8") as file:
+            return json.load(file)
 
     def run(self) -> None:
         """Run the main game loop."""
@@ -98,18 +119,50 @@ class Game:
         """Handle left mouse click on farm plots."""
         for plot in self.plots:
             if plot.contains_point(position):
+                if plot.is_locked():
+                    self.message = f"Plot {plot.plot_id}: locked"
+                    print(self.message)
+                    print("This plot is locked.")
+                    return
+
+                if plot.can_plant():
+                    self.plant_selected_crop(plot)
+                    return
+
+                if plot.status == PLOT_PLANTED:
+                    crop_name = self.get_crop_name(plot.crop_id)
+                    self.message = f"Plot {plot.plot_id}: planted {crop_name}"
+                    print(self.message)
+                    print("This plot already has a crop.")
+                    return
+
                 self.message = f"Plot {plot.plot_id}: {plot.status}"
                 print(self.message)
-
-                if plot.status == PLOT_LOCKED:
-                    print("This plot is locked.")
-                elif plot.status == PLOT_EMPTY:
-                    print("This plot is empty and can be planted later.")
-
                 return
 
         self.message = "Clicked outside farm plots."
         print(self.message)
+        
+    def plant_selected_crop(self, plot: Plot) -> None:
+        """Plant the currently selected crop on a plot."""
+        planted_at = time.time()
+        plot.plant(self.selected_crop_id, planted_at)
+
+        crop_name = self.get_crop_name(self.selected_crop_id)
+        self.message = f"Plot {plot.plot_id}: planted {crop_name}"
+        print(self.message)
+
+    def get_crop_name(self, crop_id: str | None) -> str:
+        """Get crop English name by crop id."""
+        if crop_id is None:
+            return "None"
+
+        crop = self.crop_data.get(crop_id)
+
+        if crop is None:
+            return crop_id
+
+        return crop["name_en"]
 
     def update(self) -> None:
         """Update game state.
@@ -139,13 +192,24 @@ class Game:
 
             if plot.status == PLOT_EMPTY:
                 color = PLOT_EMPTY_COLOR
-            else:
+            elif plot.status == PLOT_LOCKED:
                 color = PLOT_LOCKED_COLOR
+            elif plot.status == PLOT_PLANTED:
+                color = PLOT_PLANTED_COLOR
+            else:
+                color = PLOT_EMPTY_COLOR
 
             pygame.draw.rect(self.screen, color, rect, border_radius=14)
             pygame.draw.rect(self.screen, PLOT_BORDER_COLOR, rect, width=4, border_radius=14)
 
-            label_surface = self.font.render(str(plot.plot_id), True, TEXT_COLOR)
+            if plot.status == PLOT_PLANTED:
+                label_text = "S"
+                label_color = PLOT_PLANTED_TEXT_COLOR
+            else:
+                label_text = str(plot.plot_id)
+                label_color = TEXT_COLOR
+
+            label_surface = self.font.render(label_text, True, label_color)
             label_rect = label_surface.get_rect(center=rect.center)
             self.screen.blit(label_surface, label_rect)
 
