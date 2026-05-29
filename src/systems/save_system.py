@@ -17,6 +17,20 @@ class SaveSystem:
         with save_path.open("w", encoding="utf-8") as file:
             json.dump(save_data, file, ensure_ascii=False, indent=2)
 
+    def load_game(self, save_path: Path) -> dict | None:
+        """Load game data from a JSON file.
+
+        Return None if the save file does not exist or cannot be loaded.
+        """
+        if not save_path.exists():
+            return None
+
+        try:
+            with save_path.open("r", encoding="utf-8") as file:
+                return json.load(file)
+        except (OSError, json.JSONDecodeError):
+            return None
+
     @staticmethod
     def current_time_iso() -> str:
         """Return current local time as ISO string."""
@@ -29,3 +43,11 @@ class SaveSystem:
             return None
 
         return datetime.fromtimestamp(timestamp).isoformat(timespec="seconds")
+
+    @staticmethod
+    def iso_to_timestamp(iso_time: str | None) -> float | None:
+        """Convert an ISO time string to Unix timestamp."""
+        if iso_time is None:
+            return None
+
+        return datetime.fromisoformat(iso_time).timestamp()

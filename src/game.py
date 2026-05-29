@@ -78,14 +78,21 @@ class Game:
 
         self.save_system = SaveSystem(SAVES_DIR)
         self.save_path = SAVES_DIR / "save_1.json"
+        self.created_at = self.save_system.current_time_iso()
 
         self.selected_crop_id = CROP_STARBUBBLE_RADISH
         self.player = Player(coins=50)
+
         self.inventory = Inventory(
             seeds={
                 CROP_STARBUBBLE_RADISH: 0,
             }
         )
+
+        self.message = "Version 0.6: Save and load game progress."
+
+        self.plots = self.create_plots()
+
         self.shop_button = Button(
             x=SHOP_BUTTON_X,
             y=SHOP_BUTTON_Y,
@@ -94,9 +101,7 @@ class Game:
             text="Shop: Buy Seed",
         )
 
-        self.message = "Version 0.5: Click Shop to buy seeds, then plant."
-
-        self.plots = self.create_plots()
+        self.load_existing_save()
     
     def load_crop_data(self) -> dict:
         """Load crop data from data/crops.json."""
@@ -171,7 +176,7 @@ class Game:
             "save_version": "0.1",
             "game_version": GAME_VERSION,
             "slot_id": 1,
-            "created_at": self.save_system.current_time_iso(),
+            "created_at": self.created_at,
             "last_saved_at": self.save_system.current_time_iso(),
             "player": {
                 "coins": self.player.coins,
@@ -187,6 +192,66 @@ class Game:
         save_data = self.build_save_data()
         self.save_system.save_game(self.save_path, save_data)
         print(f"Game saved to {self.save_path}")
+    
+    def load_existing_save(self) -> None:
+        """Load existing save data if available."""
+        save_data = self.save_system.load_game(self.save_path)
+
+        if save_data is None:
+            self.message = "No save found. Started a new game."
+            print(self.message)
+            return
+
+        self.created_at = save_data.get(
+            "created_at",
+            self.save_system.current_time_iso(),
+        )
+
+        player_data = save_data.get("player", {})
+        self.player.coins = int(player_data.get("coins", 50))
+
+        inventory_data = save_data.get("inventory", {})
+        seeds_data = inventory_data.get("seeds", {})
+        self.inventory.seeds = {
+            str(crop_id): int(count)
+            for crop_id, count in seeds_data.items()
+        }
+
+        self.restore_plots(save_data.get("plots", []))
+
+        self.message = "Loaded save_1.json."
+        print(f"Game loaded from {self.save_path}")
+    
+    def restore_plots(self, plots_data: list[dict]) -> None:
+        """Restore plot states from save data."""
+        plots_by_id = {
+            plot.plot_id: plot
+            for plot in self.plots
+        }
+
+        for plot_data in plots_data:
+            plot_id = plot_data.get("plot_id")
+            plot = plots_by_id.get(plot_id)
+
+            if plot is None:
+                continue
+
+            plot.status = plot_data.get("status", plot.status)
+            plot.is_unlocked = bool(plot_data.get("is_unlocked", plot.is_unlocked))
+
+            crop_data = plot_data.get("crop")
+
+            if crop_data is None:
+                plot.crop_id = None
+                plot.planted_at = None
+                plot.current_stage = None
+                continue
+
+            plot.crop_id = crop_data.get("crop_id")
+            plot.planted_at = self.save_system.iso_to_timestamp(
+                crop_data.get("planted_at")
+            )
+            plot.current_stage = crop_data.get("current_stage")
 
     def run(self) -> None:
         """Run the main game loop."""
