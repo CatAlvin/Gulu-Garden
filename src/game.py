@@ -219,7 +219,15 @@ class Game:
 
         self.restore_plots(save_data.get("plots", []))
 
-        self.message = "Loaded save_1.json."
+        offline_messages = self.apply_offline_growth()
+
+        if offline_messages:
+            self.message = offline_messages[0]
+            for message in offline_messages:
+                print(message)
+        else:
+            self.message = "Loaded save_1.json."
+
         print(f"Game loaded from {self.save_path}")
     
     def restore_plots(self, plots_data: list[dict]) -> None:
@@ -252,6 +260,46 @@ class Game:
                 crop_data.get("planted_at")
             )
             plot.current_stage = crop_data.get("current_stage")
+            
+    def apply_offline_growth(self) -> list[str]:
+        """Apply growth after loading save data and report offline changes."""
+        current_time = time.time()
+        offline_messages: list[str] = []
+
+        for plot in self.plots:
+            if plot.crop_id is None:
+                continue
+
+            old_status = plot.status
+            old_stage = plot.current_stage
+
+            crop = self.crop_data.get(plot.crop_id)
+            if crop is None:
+                continue
+
+            growth_time_seconds = crop["growth_time_seconds"]
+            plot.update_growth(current_time, growth_time_seconds)
+
+            became_mature = old_status != PLOT_MATURE and plot.status == PLOT_MATURE
+
+            if became_mature:
+                crop_name = self.get_crop_name(plot.crop_id)
+                message = (
+                    f"Plot {plot.plot_id}: {crop_name} became mature "
+                    f"while you were away."
+                )
+                offline_messages.append(message)
+
+            elif old_stage != plot.current_stage:
+                crop_name = self.get_crop_name(plot.crop_id)
+                stage_label = self.get_crop_stage_label(plot)
+                message = (
+                    f"Plot {plot.plot_id}: {crop_name} grew to "
+                    f"{stage_label} while you were away."
+                )
+                offline_messages.append(message)
+
+        return offline_messages
 
     def run(self) -> None:
         """Run the main game loop."""
