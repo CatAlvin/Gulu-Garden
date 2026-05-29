@@ -1,0 +1,35 @@
+{
+  "starbubble_radish": {
+    "id": "starbubble_radish",
+    "name_cn": "星泡萝卜",
+    "name_en": "Starbubble Radish",
+    "description": "星泡萝卜是一种适合新手种植的奇幻作物。它的根部会储存微弱星光，成熟时会从叶片之间冒出小小的星星泡泡。",
+    "seed_price": 10,
+    "sell_price": 20,
+    "growth_time_seconds": 30,
+    "growth_stages": [
+      {
+        "stage": 0,
+        "name": "seed",
+        "label_cn": "种子"
+      },
+      {
+        "stage": 1,
+        "name": "sprout",
+        "label_cn": "幼苗"
+      },
+      {
+        "stage": 2,
+        "name": "growing",
+        "label_cn": "生长期"
+      },
+      {
+        "stage": 3,
+        "name": "mature",
+        "label_cn": "成熟"
+      }
+    ],
+    "need_water": true,
+    "can_wither": false
+  }
+}

@@ -52,7 +52,13 @@ class Game:
             y = PLOT_START_Y + row * (PLOT_SIZE + PLOT_GAP)
 
             plot_id = index + 1
-            is_unlocked = plot_id <= PLOT_UNLOCKED_COUNT
+
+            if plot_id <= PLOT_UNLOCKED_COUNT:
+                is_unlocked = True
+                status = PLOT_EMPTY
+            else:
+                is_unlocked = False
+                status = PLOT_LOCKED
 
             plot = Plot(
                 plot_id=plot_id,
@@ -61,6 +67,7 @@ class Game:
                 width=PLOT_SIZE,
                 height=PLOT_SIZE,
                 is_unlocked=is_unlocked,
+                status=status,
             )
 
             plots.append(plot)
