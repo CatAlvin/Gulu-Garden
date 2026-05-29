@@ -11,6 +11,10 @@ from config import (
     BUTTON_HOVER_COLOR,
     BUTTON_NORMAL_COLOR,
     BUTTON_TEXT_COLOR,
+    BACKGROUND_DAYTIME_COLOR,
+    BACKGROUND_EVENING_COLOR,
+    BACKGROUND_MIDNIGHT_COLOR,
+    BACKGROUND_MORNING_COLOR,
     SHOP_BUTTON_HEIGHT,
     SHOP_BUTTON_WIDTH,
     SHOP_BUTTON_X,
@@ -43,8 +47,9 @@ from models.inventory import Inventory
 from models.player import Player
 from models.plot import Plot
 
-from systems.shop_system import ShopSystem
 from systems.save_system import SaveSystem
+from systems.shop_system import ShopSystem
+from systems.time_system import TimeSystem
 
 from ui.button import Button
 
@@ -79,6 +84,8 @@ class Game:
         self.save_system = SaveSystem(SAVES_DIR)
         self.save_path = SAVES_DIR / "save_1.json"
         self.created_at = self.save_system.current_time_iso()
+        self.time_system = TimeSystem()
+        self.current_day_phase = self.time_system.get_day_phase()
 
         self.selected_crop_id = CROP_STARBUBBLE_RADISH
         self.player = Player(coins=50)
@@ -89,7 +96,7 @@ class Game:
             }
         )
 
-        self.message = "Version 0.6: Save and load game progress."
+        self.message = "Version 0.9: Day phase changes with real-world time."
 
         self.plots = self.create_plots()
 
@@ -180,6 +187,11 @@ class Game:
             "last_saved_at": self.save_system.current_time_iso(),
             "player": {
                 "coins": self.player.coins,
+            },
+            "time": {
+                "use_real_world_time": True,
+                "current_day_phase": self.current_day_phase,
+                "last_calculated_at": self.save_system.current_time_iso(),
             },
             "inventory": {
                 "seeds": self.inventory.seeds,
@@ -461,6 +473,8 @@ class Game:
 
     def update(self) -> None:
         """Update game state."""
+        self.current_day_phase = self.time_system.get_day_phase()
+
         current_time = time.time()
 
         for plot in self.plots:
@@ -474,9 +488,25 @@ class Game:
             growth_time_seconds = crop["growth_time_seconds"]
             plot.update_growth(current_time, growth_time_seconds)
 
+    def get_background_color(self) -> tuple[int, int, int]:
+        """Return background color for current day phase."""
+        if self.current_day_phase == "morning":
+            return BACKGROUND_MORNING_COLOR
+
+        if self.current_day_phase == "daytime":
+            return BACKGROUND_DAYTIME_COLOR
+
+        if self.current_day_phase == "evening":
+            return BACKGROUND_EVENING_COLOR
+
+        if self.current_day_phase == "midnight":
+            return BACKGROUND_MIDNIGHT_COLOR
+
+        return BACKGROUND_COLOR
+
     def draw(self) -> None:
         """Draw everything on the screen."""
-        self.screen.fill(BACKGROUND_COLOR)
+        self.screen.fill(self.get_background_color())
 
         self.draw_hud()
         self.draw_message()
@@ -495,6 +525,12 @@ class Game:
         seed_text = f"Starbubble Seeds: {seed_count}"
         seed_surface = self.font.render(seed_text, True, TEXT_COLOR)
         self.screen.blit(seed_surface, (220, 28))
+
+        current_time_text = self.time_system.get_current_time_text()
+        phase_label = self.time_system.get_day_phase_label(self.current_day_phase)
+        time_text = f"Time: {current_time_text} | Phase: {phase_label}"
+        time_surface = self.font.render(time_text, True, TEXT_COLOR)
+        self.screen.blit(time_surface, (560, 28))
 
     def draw_message(self) -> None:
         """Draw current status message."""

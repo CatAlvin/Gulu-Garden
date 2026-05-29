@@ -5,7 +5,7 @@ from pathlib import Path
 # =========================
 
 GAME_TITLE = "Gulu Garden - 咕噜小菜园"
-GAME_VERSION = "0.6.0"
+GAME_VERSION = "0.9.0"
 
 # =========================
 # Screen Settings
@@ -75,3 +75,12 @@ BUTTON_NORMAL_COLOR = (248, 224, 168)
 BUTTON_HOVER_COLOR = (255, 236, 188)
 BUTTON_BORDER_COLOR = (130, 96, 55)
 BUTTON_TEXT_COLOR = (70, 52, 35)
+
+# =========================
+# Day Phase Background Colors
+# =========================
+
+BACKGROUND_MORNING_COLOR = (205, 230, 190)
+BACKGROUND_DAYTIME_COLOR = (188, 224, 170)
+BACKGROUND_EVENING_COLOR = (230, 184, 128)
+BACKGROUND_MIDNIGHT_COLOR = (74, 91, 130)
