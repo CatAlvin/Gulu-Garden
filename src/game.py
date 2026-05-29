@@ -29,6 +29,7 @@ from config import (
     PLOT_MATURE_TEXT_COLOR,
 )
 from models.plot import Plot
+from models.player import Player
 from utils.constants import (
     CROP_STARBUBBLE_RADISH,
     PLOT_EMPTY,
@@ -55,8 +56,9 @@ class Game:
         self.font = pygame.font.SysFont("Microsoft YaHei", 24)
         self.crop_data = self.load_crop_data()
         self.selected_crop_id = CROP_STARBUBBLE_RADISH
+        self.player = Player(coins=50)
 
-        self.message = "Version 0.3: Click an empty plot to plant Starbubble Radish."
+        self.message = "Version 0.4: Plant, wait until mature, then click to harvest."
 
         self.plots = self.create_plots()
 
@@ -135,17 +137,16 @@ class Game:
                     self.plant_selected_crop(plot)
                     return
 
-                if plot.status in (PLOT_PLANTED, PLOT_GROWING, PLOT_MATURE):
+                if plot.status == PLOT_MATURE:
+                    self.harvest_plot(plot)
+                    return
+
+                if plot.status in (PLOT_PLANTED, PLOT_GROWING):
                     crop_name = self.get_crop_name(plot.crop_id)
                     stage_label = self.get_crop_stage_label(plot)
                     self.message = f"Plot {plot.plot_id}: {plot.status} {crop_name} ({stage_label})"
                     print(self.message)
-
-                    if plot.status == PLOT_MATURE:
-                        print("This crop is mature. Harvesting will be added in Version 0.4.")
-                    else:
-                        print("This crop is still growing.")
-
+                    print("This crop is still growing.")
                     return
 
                 self.message = f"Plot {plot.plot_id}: {plot.status}"
@@ -163,7 +164,35 @@ class Game:
         crop_name = self.get_crop_name(self.selected_crop_id)
         self.message = f"Plot {plot.plot_id}: planted {crop_name}"
         print(self.message)
+    
+    def harvest_plot(self, plot: Plot) -> None:
+        """Harvest a mature crop and add coins to the player."""
+        harvested_crop_id = plot.harvest()
 
+        if harvested_crop_id is None:
+            self.message = f"Plot {plot.plot_id}: nothing to harvest"
+            print(self.message)
+            return
+
+        crop = self.crop_data.get(harvested_crop_id)
+
+        if crop is None:
+            self.message = f"Plot {plot.plot_id}: harvested unknown crop"
+            print(self.message)
+            return
+
+        crop_name = crop["name_en"]
+        sell_price = crop["sell_price"]
+
+        self.player.add_coins(sell_price)
+
+        self.message = (
+            f"Harvested {crop_name} from Plot {plot.plot_id}. "
+            f"+{sell_price} coins."
+        )
+        print(self.message)
+        print(f"Current coins: {self.player.coins}")
+    
     def get_crop_name(self, crop_id: str | None) -> str:
         """Get crop English name by crop id."""
         if crop_id is None:
@@ -212,15 +241,22 @@ class Game:
         """Draw everything on the screen."""
         self.screen.fill(BACKGROUND_COLOR)
 
+        self.draw_hud()
         self.draw_message()
         self.draw_plots()
 
         pygame.display.flip()
+    
+    def draw_hud(self) -> None:
+        """Draw basic HUD information."""
+        coin_text = f"Coins: {self.player.coins}"
+        coin_surface = self.font.render(coin_text, True, TEXT_COLOR)
+        self.screen.blit(coin_surface, (40, 28))
 
     def draw_message(self) -> None:
         """Draw current status message."""
         text_surface = self.font.render(self.message, True, TEXT_COLOR)
-        self.screen.blit(text_surface, (40, 40))
+        self.screen.blit(text_surface, (40, 68))
 
     def draw_plots(self) -> None:
         """Draw all farm plots."""

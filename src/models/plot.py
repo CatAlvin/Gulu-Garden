@@ -74,6 +74,31 @@ class Plot:
         else:
             self.current_stage = CROP_STAGE_SEED
             self.status = PLOT_PLANTED
+            
+    def can_harvest(self) -> bool:
+        """Return whether this plot has a mature crop that can be harvested."""
+        return (
+            self.is_unlocked
+            and self.status == PLOT_MATURE
+            and self.crop_id is not None
+        )
+
+    def harvest(self) -> str | None:
+        """Harvest the crop and reset the plot to empty.
+
+        Return the harvested crop id.
+        """
+        if not self.can_harvest():
+            return None
+
+        harvested_crop_id = self.crop_id
+
+        self.status = PLOT_EMPTY
+        self.crop_id = None
+        self.planted_at = None
+        self.current_stage = None
+
+        return harvested_crop_id
 
     def is_locked(self) -> bool:
         """Return whether this plot is locked."""
