@@ -22,18 +22,27 @@ from config import (
     DATA_DIR,
     FPS,
     GAME_TITLE,
-    PLOT_BORDER_COLOR,
     PLOT_COLUMNS,
+    PLOT_ROWS,
     PLOT_EMPTY_COLOR,
-    PLOT_GAP,
+    PLOT_ROW_COUNTS,
+    PLOT_GAP_X,
+    PLOT_GAP_Y,
+    FARM_AREA_X,
+    FARM_AREA_Y,
+    FARM_AREA_WIDTH,
+    FARM_AREA_HEIGHT,
     PLOT_LOCKED_COLOR,
     PLOT_PLANTED_COLOR,
     PLOT_PLANTED_TEXT_COLOR,
+    PLOT_BORDER_COLOR,
     PLOT_SIZE,
-    PLOT_START_X,
-    PLOT_START_Y,
     PLOT_TOTAL,
     PLOT_UNLOCKED_COUNT,
+    FARM_AREA_X,
+    FARM_AREA_Y,
+    FARM_AREA_WIDTH,
+    FARM_AREA_HEIGHT,
     SCREEN_HEIGHT,
     SCREEN_WIDTH,
     TEXT_COLOR,
@@ -41,6 +50,7 @@ from config import (
     PLOT_GROWING_TEXT_COLOR,
     PLOT_MATURE_COLOR,
     PLOT_MATURE_TEXT_COLOR,
+    BACKGROUND_DAYTIME_IMAGE,
 )
 
 from models.inventory import Inventory
@@ -61,6 +71,7 @@ from utils.constants import (
     PLOT_GROWING,
     PLOT_MATURE,
 )
+from utils.asset_loader import AssetLoader
 
 
 class Game:
@@ -75,6 +86,13 @@ class Game:
 
         self.clock = pygame.time.Clock()
         self.running = True
+        
+        self.asset_loader = AssetLoader()
+        self.background_image = self.asset_loader.load_image(
+            BACKGROUND_DAYTIME_IMAGE,
+            size=(SCREEN_WIDTH, SCREEN_HEIGHT),
+            use_alpha=False,
+        )
 
         self.font = pygame.font.SysFont("Microsoft YaHei", 24)
         self.crop_data = self.load_crop_data()
@@ -118,36 +136,42 @@ class Game:
             return json.load(file)
     
     def create_plots(self) -> list[Plot]:
-        """Create the initial 8 farm plots."""
+        """Create farm plots with a staggered row layout."""
         plots: list[Plot] = []
 
-        for index in range(PLOT_TOTAL):
-            row = index // PLOT_COLUMNS
-            col = index % PLOT_COLUMNS
+        grid_height = PLOT_ROWS * PLOT_SIZE + (PLOT_ROWS - 1) * PLOT_GAP_Y
+        start_y = FARM_AREA_Y + (FARM_AREA_HEIGHT - grid_height) // 2
 
-            x = PLOT_START_X + col * (PLOT_SIZE + PLOT_GAP)
-            y = PLOT_START_Y + row * (PLOT_SIZE + PLOT_GAP)
+        plot_id = 1
 
-            plot_id = index + 1
+        for row, row_count in enumerate(PLOT_ROW_COUNTS):
+            row_width = row_count * PLOT_SIZE + (row_count - 1) * PLOT_GAP_X
 
-            if plot_id <= PLOT_UNLOCKED_COUNT:
-                is_unlocked = True
-                status = PLOT_EMPTY
-            else:
-                is_unlocked = False
-                status = PLOT_LOCKED
+            start_x = FARM_AREA_X + (FARM_AREA_WIDTH - row_width) // 2
+            y = start_y + row * (PLOT_SIZE + PLOT_GAP_Y)
 
-            plot = Plot(
-                plot_id=plot_id,
-                x=x,
-                y=y,
-                width=PLOT_SIZE,
-                height=PLOT_SIZE,
-                is_unlocked=is_unlocked,
-                status=status,
-            )
+            for col in range(row_count):
+                x = start_x + col * (PLOT_SIZE + PLOT_GAP_X)
 
-            plots.append(plot)
+                if plot_id <= PLOT_UNLOCKED_COUNT:
+                    is_unlocked = True
+                    status = PLOT_EMPTY
+                else:
+                    is_unlocked = False
+                    status = PLOT_LOCKED
+
+                plot = Plot(
+                    plot_id=plot_id,
+                    x=x,
+                    y=y,
+                    width=PLOT_SIZE,
+                    height=PLOT_SIZE,
+                    is_unlocked=is_unlocked,
+                    status=status,
+                )
+
+                plots.append(plot)
+                plot_id += 1
 
         return plots
     
@@ -503,17 +527,27 @@ class Game:
             return BACKGROUND_MIDNIGHT_COLOR
 
         return BACKGROUND_COLOR
+    
 
     def draw(self) -> None:
         """Draw everything on the screen."""
-        self.screen.fill(self.get_background_color())
+        self.draw_background()
 
         self.draw_hud()
         self.draw_message()
+        # self.draw_farm_area_debug() # TODO: 在接入背景图和土地贴图后去掉这个农田区域调试边框
         self.draw_plots()
         self.draw_buttons()
 
         pygame.display.flip()
+    
+    def draw_background(self) -> None:
+        """Draw background image or fallback day phase color."""
+        if self.background_image is not None:
+            self.screen.blit(self.background_image, (0, 0))
+            return
+
+        self.screen.fill(self.get_background_color())
     
     def draw_hud(self) -> None:
         """Draw basic HUD information."""
@@ -536,6 +570,17 @@ class Game:
         """Draw current status message."""
         text_surface = self.font.render(self.message, True, TEXT_COLOR)
         self.screen.blit(text_surface, (40, 68))
+        
+    # TODO: 临时的农田区域调试边框，后续接入背景图和土地贴图后可以去掉。
+    def draw_farm_area_debug(self) -> None:
+        """Draw the farm area rectangle for layout debugging."""
+        debug_rect = pygame.Rect(
+            FARM_AREA_X,
+            FARM_AREA_Y,
+            FARM_AREA_WIDTH,
+            FARM_AREA_HEIGHT,
+        )
+        pygame.draw.rect(self.screen, (255, 0, 0), debug_rect, width=2)
 
     def draw_plots(self) -> None:
         """Draw all farm plots."""
