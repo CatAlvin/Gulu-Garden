@@ -1,9 +1,14 @@
 from dataclasses import dataclass
 
 from utils.constants import (
+    CROP_STAGE_GROWING,
+    CROP_STAGE_MATURE,
     CROP_STAGE_SEED,
+    CROP_STAGE_SPROUT,
     PLOT_EMPTY,
+    PLOT_GROWING,
     PLOT_LOCKED,
+    PLOT_MATURE,
     PLOT_PLANTED,
 )
 
@@ -45,6 +50,30 @@ class Plot:
         self.planted_at = planted_at
         self.current_stage = CROP_STAGE_SEED
         self.status = PLOT_PLANTED
+
+    def update_growth(self, current_time: float, growth_time_seconds: int) -> None:
+        """Update crop growth stage based on elapsed real time."""
+        if self.crop_id is None or self.planted_at is None:
+            return
+
+        elapsed_time = current_time - self.planted_at
+
+        if elapsed_time >= growth_time_seconds:
+            self.current_stage = CROP_STAGE_MATURE
+            self.status = PLOT_MATURE
+            return
+
+        stage_duration = growth_time_seconds / 3
+
+        if elapsed_time >= stage_duration * 2:
+            self.current_stage = CROP_STAGE_GROWING
+            self.status = PLOT_GROWING
+        elif elapsed_time >= stage_duration:
+            self.current_stage = CROP_STAGE_SPROUT
+            self.status = PLOT_GROWING
+        else:
+            self.current_stage = CROP_STAGE_SEED
+            self.status = PLOT_PLANTED
 
     def is_locked(self) -> bool:
         """Return whether this plot is locked."""

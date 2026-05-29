@@ -23,6 +23,10 @@ from config import (
     SCREEN_HEIGHT,
     SCREEN_WIDTH,
     TEXT_COLOR,
+    PLOT_GROWING_COLOR,
+    PLOT_GROWING_TEXT_COLOR,
+    PLOT_MATURE_COLOR,
+    PLOT_MATURE_TEXT_COLOR,
 )
 from models.plot import Plot
 from utils.constants import (
@@ -30,6 +34,8 @@ from utils.constants import (
     PLOT_EMPTY,
     PLOT_LOCKED,
     PLOT_PLANTED,
+    PLOT_GROWING,
+    PLOT_MATURE,
 )
 
 
@@ -129,11 +135,17 @@ class Game:
                     self.plant_selected_crop(plot)
                     return
 
-                if plot.status == PLOT_PLANTED:
+                if plot.status in (PLOT_PLANTED, PLOT_GROWING, PLOT_MATURE):
                     crop_name = self.get_crop_name(plot.crop_id)
-                    self.message = f"Plot {plot.plot_id}: planted {crop_name}"
+                    stage_label = self.get_crop_stage_label(plot)
+                    self.message = f"Plot {plot.plot_id}: {plot.status} {crop_name} ({stage_label})"
                     print(self.message)
-                    print("This plot already has a crop.")
+
+                    if plot.status == PLOT_MATURE:
+                        print("This crop is mature. Harvesting will be added in Version 0.4.")
+                    else:
+                        print("This crop is still growing.")
+
                     return
 
                 self.message = f"Plot {plot.plot_id}: {plot.status}"
@@ -163,13 +175,38 @@ class Game:
             return crop_id
 
         return crop["name_en"]
+    
+    def get_crop_stage_label(self, plot: Plot) -> str:
+        """Get current crop stage label."""
+        if plot.crop_id is None or plot.current_stage is None:
+            return "None"
+
+        crop = self.crop_data.get(plot.crop_id)
+        if crop is None:
+            return "Unknown"
+
+        growth_stages = crop.get("growth_stages", [])
+
+        for stage_data in growth_stages:
+            if stage_data["stage"] == plot.current_stage:
+                return stage_data["name"]
+
+        return "Unknown"
 
     def update(self) -> None:
-        """Update game state.
+        """Update game state."""
+        current_time = time.time()
 
-        Version 0.2 only handles plot display and click detection.
-        """
-        pass
+        for plot in self.plots:
+            if plot.crop_id is None:
+                continue
+
+            crop = self.crop_data.get(plot.crop_id)
+            if crop is None:
+                continue
+
+            growth_time_seconds = crop["growth_time_seconds"]
+            plot.update_growth(current_time, growth_time_seconds)
 
     def draw(self) -> None:
         """Draw everything on the screen."""
@@ -196,6 +233,10 @@ class Game:
                 color = PLOT_LOCKED_COLOR
             elif plot.status == PLOT_PLANTED:
                 color = PLOT_PLANTED_COLOR
+            elif plot.status == PLOT_GROWING:
+                color = PLOT_GROWING_COLOR
+            elif plot.status == PLOT_MATURE:
+                color = PLOT_MATURE_COLOR
             else:
                 color = PLOT_EMPTY_COLOR
 
@@ -203,8 +244,14 @@ class Game:
             pygame.draw.rect(self.screen, PLOT_BORDER_COLOR, rect, width=4, border_radius=14)
 
             if plot.status == PLOT_PLANTED:
-                label_text = "S"
+                label_text = "P"
                 label_color = PLOT_PLANTED_TEXT_COLOR
+            elif plot.status == PLOT_GROWING:
+                label_text = "G"
+                label_color = PLOT_GROWING_TEXT_COLOR
+            elif plot.status == PLOT_MATURE:
+                label_text = "M"
+                label_color = PLOT_MATURE_TEXT_COLOR
             else:
                 label_text = str(plot.plot_id)
                 label_color = TEXT_COLOR
