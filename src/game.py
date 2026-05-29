@@ -4,6 +4,8 @@ import time
 import pygame
 
 from config import (
+    GAME_VERSION,
+    SAVES_DIR,
     BACKGROUND_COLOR,
     BUTTON_BORDER_COLOR,
     BUTTON_HOVER_COLOR,
@@ -42,6 +44,7 @@ from models.player import Player
 from models.plot import Plot
 
 from systems.shop_system import ShopSystem
+from systems.save_system import SaveSystem
 
 from ui.button import Button
 
@@ -72,6 +75,9 @@ class Game:
         self.crop_data = self.load_crop_data()
         self.shop_items = self.load_shop_items()
         self.shop_system = ShopSystem(self.shop_items)
+
+        self.save_system = SaveSystem(SAVES_DIR)
+        self.save_path = SAVES_DIR / "save_1.json"
 
         self.selected_crop_id = CROP_STARBUBBLE_RADISH
         self.player = Player(coins=50)
@@ -139,6 +145,48 @@ class Game:
 
         with shop_items_path.open("r", encoding="utf-8") as file:
             return json.load(file)
+        
+    def build_save_data(self) -> dict:
+        """Build current game state as JSON-serializable data."""
+        plots_data = []
+
+        for plot in self.plots:
+            plot_data = {
+                "plot_id": plot.plot_id,
+                "status": plot.status,
+                "is_unlocked": plot.is_unlocked,
+                "crop": None,
+            }
+
+            if plot.crop_id is not None:
+                plot_data["crop"] = {
+                    "crop_id": plot.crop_id,
+                    "planted_at": self.save_system.timestamp_to_iso(plot.planted_at),
+                    "current_stage": plot.current_stage,
+                }
+
+            plots_data.append(plot_data)
+
+        return {
+            "save_version": "0.1",
+            "game_version": GAME_VERSION,
+            "slot_id": 1,
+            "created_at": self.save_system.current_time_iso(),
+            "last_saved_at": self.save_system.current_time_iso(),
+            "player": {
+                "coins": self.player.coins,
+            },
+            "inventory": {
+                "seeds": self.inventory.seeds,
+            },
+            "plots": plots_data,
+        }
+        
+    def save_game(self) -> None:
+        """Save current game progress."""
+        save_data = self.build_save_data()
+        self.save_system.save_game(self.save_path, save_data)
+        print(f"Game saved to {self.save_path}")
 
     def run(self) -> None:
         """Run the main game loop."""
@@ -163,6 +211,10 @@ class Game:
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_b:
                     self.buy_starbubble_seed()
+
+                elif event.key == pygame.K_s:
+                    self.save_game()
+                    self.message = "Game saved."
 
     def handle_mouse_click(self, position: tuple[int, int]) -> None:
         """Handle left mouse click on farm plots."""
@@ -386,5 +438,6 @@ class Game:
         )
 
     def quit(self) -> None:
-        """Cleanly quit pygame."""
+        """Save progress and cleanly quit pygame."""
+        self.save_game()
         pygame.quit()
