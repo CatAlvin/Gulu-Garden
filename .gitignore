@@ -1,0 +1,108 @@
+# Python cache
+
+**pycache**/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+
+.venv/
+venv/
+env/
+ENV/
+
+# Environment variables and secrets
+
+.env
+.env.*
+!.env.example
+
+# Pygame / local runtime files
+
+*.log
+logs/
+temp/
+tmp/
+
+# Save files
+
+saves/*.json
+saves/*.bak
+saves/*.tmp
+!saves/.gitkeep
+
+# Test / coverage cache
+
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Build / packaging output
+
+build/
+dist/
+*.egg-info/
+*.spec
+
+# Installer / executable output
+
+*.exe
+*.msi
+*.app
+*.dmg
+
+# IDE / editor files
+
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Jupyter Notebook checkpoints
+
+.ipynb_checkpoints/
+
+# Generated screenshots / videos / local outputs
+
+outputs/
+screenshots/
+recordings/
+
+# Temporary or raw AI asset drafts
+
+assets/raw/
+assets/drafts/
+assets/temp/
+assets/images/**/*_draft.png
+assets/images/**/*_temp.png
+assets/images/**/*_old.png
+
+# Large source files from image/audio editing software
+
+*.psd
+*.psb
+*.ai
+*.kra
+*.clip
+*.blend1
+*.blend2
+
+# Audio editing temporary files
+
+*.aup3-shm
+*.aup3-wal
+
+# Keep empty project folders when needed
+
+!**/.gitkeep
+
+# Docs
+*.docx
