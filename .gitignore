@@ -106,3 +106,6 @@ assets/images/**/*_old.png
 
 # Docs
 *.docx
+
+# Code Sort
+CodeSort.txt
