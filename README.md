@@ -10,7 +10,7 @@
 
 ## 当前版本
 
-Version 1.0.0 Candidate — 第一个可试玩版本候选
+Version 1.0.0 — 第一个可试玩版本
 
 当前版本已经完成基础种菜闭环：
 
@@ -35,23 +35,9 @@ Version 1.0.0 Candidate — 第一个可试玩版本候选
 
 ## 游戏截图
 
-截图将放在：
-
-```text
-docs/images/
-```
-
-当前建议截图文件名：
-
-```text
-docs/images/gulu_garden_v1_0_main_window.png
-```
-
-如果截图尚未添加，可以先保留此说明。后续上传截图后，可在这里加入：
-
-```markdown
 ![Gulu Garden Main Window](docs/images/gulu_garden_v1_0_main_window.png)
-```
+
+当前截图展示了 Version 1.0 候选版本的基础界面，包括金币、种子数量、现实时间阶段、农田格子、商店按钮和作物成长状态。
 
 ---
 
