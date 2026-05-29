@@ -28,8 +28,9 @@ from config import (
     PLOT_MATURE_COLOR,
     PLOT_MATURE_TEXT_COLOR,
 )
-from models.plot import Plot
+from models.inventory import Inventory
 from models.player import Player
+from models.plot import Plot
 from utils.constants import (
     CROP_STARBUBBLE_RADISH,
     PLOT_EMPTY,
@@ -57,6 +58,11 @@ class Game:
         self.crop_data = self.load_crop_data()
         self.selected_crop_id = CROP_STARBUBBLE_RADISH
         self.player = Player(coins=50)
+        self.inventory = Inventory(
+            seeds={
+                CROP_STARBUBBLE_RADISH: 3,
+            }
+        )
 
         self.message = "Version 0.4: Plant, wait until mature, then click to harvest."
 
@@ -158,11 +164,21 @@ class Game:
         
     def plant_selected_crop(self, plot: Plot) -> None:
         """Plant the currently selected crop on a plot."""
+        crop_name = self.get_crop_name(self.selected_crop_id)
+
+        if not self.inventory.consume_seed(self.selected_crop_id, amount=1):
+            self.message = f"No {crop_name} seeds left. Buy seeds later in the shop."
+            print(self.message)
+            return
+
         planted_at = time.time()
         plot.plant(self.selected_crop_id, planted_at)
 
-        crop_name = self.get_crop_name(self.selected_crop_id)
-        self.message = f"Plot {plot.plot_id}: planted {crop_name}"
+        seed_count = self.inventory.get_seed_count(self.selected_crop_id)
+        self.message = (
+            f"Plot {plot.plot_id}: planted {crop_name}. "
+            f"Seeds left: {seed_count}"
+        )
         print(self.message)
     
     def harvest_plot(self, plot: Plot) -> None:
@@ -252,6 +268,11 @@ class Game:
         coin_text = f"Coins: {self.player.coins}"
         coin_surface = self.font.render(coin_text, True, TEXT_COLOR)
         self.screen.blit(coin_surface, (40, 28))
+
+        seed_count = self.inventory.get_seed_count(CROP_STARBUBBLE_RADISH)
+        seed_text = f"Starbubble Seeds: {seed_count}"
+        seed_surface = self.font.render(seed_text, True, TEXT_COLOR)
+        self.screen.blit(seed_surface, (220, 28))
 
     def draw_message(self) -> None:
         """Draw current status message."""
