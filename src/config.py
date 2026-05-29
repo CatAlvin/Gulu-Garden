@@ -78,10 +78,10 @@ PLOT_TOTAL = sum(PLOT_ROW_COUNTS)
 PLOT_UNLOCKED_COUNT = 4
 
 # 后续接入土地贴图时，这个尺寸会作为贴图显示尺寸。
-PLOT_SIZE = 96
+PLOT_SIZE = 128
 
-PLOT_GAP_X = 20
-PLOT_GAP_Y = 20
+PLOT_GAP_X = 2
+PLOT_GAP_Y = 2
 
 # 农田区域用于承载 6-8-6 交错布局。
 # 区域宽度需要覆盖中间 8 块地，整体略微下移，避开顶部 HUD。

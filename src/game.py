@@ -51,6 +51,8 @@ from config import (
     PLOT_MATURE_COLOR,
     PLOT_MATURE_TEXT_COLOR,
     BACKGROUND_DAYTIME_IMAGE,
+    PLOT_EMPTY_IMAGE,
+    PLOT_LOCKED_IMAGE,
 )
 
 from models.inventory import Inventory
@@ -92,6 +94,17 @@ class Game:
             BACKGROUND_DAYTIME_IMAGE,
             size=(SCREEN_WIDTH, SCREEN_HEIGHT),
             use_alpha=False,
+        )
+        self.plot_empty_image = self.asset_loader.load_image(
+            PLOT_EMPTY_IMAGE,
+            size=(PLOT_SIZE, PLOT_SIZE),
+            use_alpha=True,
+        )
+
+        self.plot_locked_image = self.asset_loader.load_image(
+            PLOT_LOCKED_IMAGE,
+            size=(PLOT_SIZE, PLOT_SIZE),
+            use_alpha=True,
         )
 
         self.font = pygame.font.SysFont("Microsoft YaHei", 24)
@@ -587,21 +600,35 @@ class Game:
         for plot in self.plots:
             rect = pygame.Rect(plot.x, plot.y, plot.width, plot.height)
 
-            if plot.status == PLOT_EMPTY:
-                color = PLOT_EMPTY_COLOR
-            elif plot.status == PLOT_LOCKED:
-                color = PLOT_LOCKED_COLOR
-            elif plot.status == PLOT_PLANTED:
-                color = PLOT_PLANTED_COLOR
-            elif plot.status == PLOT_GROWING:
-                color = PLOT_GROWING_COLOR
-            elif plot.status == PLOT_MATURE:
-                color = PLOT_MATURE_COLOR
+            if plot.is_locked():
+                plot_image = self.plot_locked_image
             else:
-                color = PLOT_EMPTY_COLOR
+                plot_image = self.plot_empty_image
 
-            pygame.draw.rect(self.screen, color, rect, border_radius=14)
-            pygame.draw.rect(self.screen, PLOT_BORDER_COLOR, rect, width=4, border_radius=14)
+            if plot_image is not None:
+                self.screen.blit(plot_image, rect)
+            else:
+                if plot.status == PLOT_EMPTY:
+                    color = PLOT_EMPTY_COLOR
+                elif plot.status == PLOT_LOCKED:
+                    color = PLOT_LOCKED_COLOR
+                elif plot.status == PLOT_PLANTED:
+                    color = PLOT_PLANTED_COLOR
+                elif plot.status == PLOT_GROWING:
+                    color = PLOT_GROWING_COLOR
+                elif plot.status == PLOT_MATURE:
+                    color = PLOT_MATURE_COLOR
+                else:
+                    color = PLOT_EMPTY_COLOR
+
+                pygame.draw.rect(self.screen, color, rect, border_radius=14)
+                pygame.draw.rect(
+                    self.screen,
+                    PLOT_BORDER_COLOR,
+                    rect,
+                    width=4,
+                    border_radius=14,
+                )
 
             if plot.status == PLOT_PLANTED:
                 label_text = "P"
