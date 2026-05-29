@@ -28,9 +28,13 @@ from config import (
     PLOT_MATURE_COLOR,
     PLOT_MATURE_TEXT_COLOR,
 )
+
 from models.inventory import Inventory
 from models.player import Player
 from models.plot import Plot
+
+from systems.shop_system import ShopSystem
+
 from utils.constants import (
     CROP_STARBUBBLE_RADISH,
     PLOT_EMPTY,
@@ -56,18 +60,28 @@ class Game:
 
         self.font = pygame.font.SysFont("Microsoft YaHei", 24)
         self.crop_data = self.load_crop_data()
+        self.shop_items = self.load_shop_items()
+        self.shop_system = ShopSystem(self.shop_items)
+
         self.selected_crop_id = CROP_STARBUBBLE_RADISH
         self.player = Player(coins=50)
         self.inventory = Inventory(
             seeds={
-                CROP_STARBUBBLE_RADISH: 3,
+                CROP_STARBUBBLE_RADISH: 0,
             }
         )
 
-        self.message = "Version 0.4: Plant, wait until mature, then click to harvest."
+        self.message = "Version 0.5: Press B to buy seeds. Click empty plots to plant."
 
         self.plots = self.create_plots()
+    
+    def load_crop_data(self) -> dict:
+        """Load crop data from data/crops.json."""
+        crops_path = DATA_DIR / "crops.json"
 
+        with crops_path.open("r", encoding="utf-8") as file:
+            return json.load(file)
+    
     def create_plots(self) -> list[Plot]:
         """Create the initial 8 farm plots."""
         plots: list[Plot] = []
@@ -102,11 +116,11 @@ class Game:
 
         return plots
     
-    def load_crop_data(self) -> dict:
-        """Load crop data from data/crops.json."""
-        crops_path = DATA_DIR / "crops.json"
+    def load_shop_items(self) -> dict:
+        """Load shop item data from data/shop_items.json."""
+        shop_items_path = DATA_DIR / "shop_items.json"
 
-        with crops_path.open("r", encoding="utf-8") as file:
+        with shop_items_path.open("r", encoding="utf-8") as file:
             return json.load(file)
 
     def run(self) -> None:
@@ -128,6 +142,10 @@ class Game:
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     self.handle_mouse_click(event.pos)
+
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_b:
+                    self.buy_starbubble_seed()
 
     def handle_mouse_click(self, position: tuple[int, int]) -> None:
         """Handle left mouse click on farm plots."""
@@ -208,6 +226,20 @@ class Game:
         )
         print(self.message)
         print(f"Current coins: {self.player.coins}")
+
+    def buy_starbubble_seed(self) -> None:
+        """Buy one Starbubble Radish seed from the temporary shop."""
+        success, message = self.shop_system.buy_seed(
+            item_id="starbubble_radish_seed",
+            player=self.player,
+            inventory=self.inventory,
+        )
+
+        self.message = message
+        print(message)
+
+        seed_count = self.inventory.get_seed_count(CROP_STARBUBBLE_RADISH)
+        print(f"Coins: {self.player.coins}, Starbubble Seeds: {seed_count}")
     
     def get_crop_name(self, crop_id: str | None) -> str:
         """Get crop English name by crop id."""

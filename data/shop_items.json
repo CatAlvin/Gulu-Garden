@@ -1,0 +1,11 @@
+{
+  "starbubble_radish_seed": {
+    "id": "starbubble_radish_seed",
+    "name_cn": "星泡萝卜种子",
+    "name_en": "Starbubble Radish Seed",
+    "item_type": "seed",
+    "crop_id": "starbubble_radish",
+    "price": 10,
+    "amount": 1
+  }
+}
