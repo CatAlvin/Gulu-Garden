@@ -72,3 +72,57 @@ Version 0.1 的核心目标已经完成：项目可以通过 `python src/main.py
 Version 0.2 的核心目标已经完成：玩家可以看到 8 块土地，并且程序可以识别点击的是哪一块土地以及土地当前状态。
 
 下一步进入 Version 0.3：星泡萝卜播种与成长。
+
+---
+
+## Version 0.3.0 — 星泡萝卜播种与成长
+
+日期：2026-05-29
+
+### 已完成
+
+- 创建 `data/crops.json`
+- 添加第一种作物：星泡萝卜 Starbubble Radish
+- 配置星泡萝卜基础数据
+  - 作物 ID：`starbubble_radish`
+  - 种子价格：10
+  - 出售价格：20
+  - 成熟时间：30 秒
+  - 成长阶段：seed / sprout / growing / mature
+- 扩展土地状态常量
+  - `empty`
+  - `locked`
+  - `planted`
+  - `growing`
+  - `need_water`
+  - `mature`
+- 修改 `Plot` 模型，使土地状态可以动态变化
+- 支持点击 empty 土地播种星泡萝卜
+- 播种后土地状态从 `empty` 变为 `planted`
+- 已播种土地不能重复播种
+- locked 土地不能播种
+- 作物会根据真实经过时间成长
+- 播种后约 10 秒进入 growing 状态
+- 播种后约 30 秒进入 mature 状态
+- 使用临时字母显示作物阶段
+  - `P` 表示 planted
+  - `G` 表示 growing
+  - `M` 表示 mature
+
+### 暂未实现
+
+- 收获作物
+- 收获后获得金币
+- 金币 UI
+- 商店购买种子
+- 背包种子数量
+- 存档系统
+- 离线成长
+- 正式作物图片素材
+- 浇水系统
+
+### 当前结论
+
+Version 0.3 的核心目标已经完成：玩家可以在空地种下星泡萝卜，作物会根据真实经过时间从 planted 进入 growing，并最终进入 mature 状态。
+
+下一步进入 Version 0.4：收获与金币循环。
