@@ -5,6 +5,14 @@ import pygame
 
 from config import (
     BACKGROUND_COLOR,
+    BUTTON_BORDER_COLOR,
+    BUTTON_HOVER_COLOR,
+    BUTTON_NORMAL_COLOR,
+    BUTTON_TEXT_COLOR,
+    SHOP_BUTTON_HEIGHT,
+    SHOP_BUTTON_WIDTH,
+    SHOP_BUTTON_X,
+    SHOP_BUTTON_Y,
     DATA_DIR,
     FPS,
     GAME_TITLE,
@@ -34,6 +42,8 @@ from models.player import Player
 from models.plot import Plot
 
 from systems.shop_system import ShopSystem
+
+from ui.button import Button
 
 from utils.constants import (
     CROP_STARBUBBLE_RADISH,
@@ -70,8 +80,15 @@ class Game:
                 CROP_STARBUBBLE_RADISH: 0,
             }
         )
+        self.shop_button = Button(
+            x=SHOP_BUTTON_X,
+            y=SHOP_BUTTON_Y,
+            width=SHOP_BUTTON_WIDTH,
+            height=SHOP_BUTTON_HEIGHT,
+            text="Shop: Buy Seed",
+        )
 
-        self.message = "Version 0.5: Press B to buy seeds. Click empty plots to plant."
+        self.message = "Version 0.5: Click Shop to buy seeds, then plant."
 
         self.plots = self.create_plots()
     
@@ -149,6 +166,13 @@ class Game:
 
     def handle_mouse_click(self, position: tuple[int, int]) -> None:
         """Handle left mouse click on farm plots."""
+        
+        # handle shop button click
+        if self.shop_button.is_clicked(position):
+            self.buy_starbubble_seed()
+            return
+        
+        # handle farm plot clicks
         for plot in self.plots:
             if plot.contains_point(position):
                 if plot.is_locked():
@@ -292,6 +316,7 @@ class Game:
         self.draw_hud()
         self.draw_message()
         self.draw_plots()
+        self.draw_buttons()
 
         pygame.display.flip()
     
@@ -348,6 +373,17 @@ class Game:
             label_surface = self.font.render(label_text, True, label_color)
             label_rect = label_surface.get_rect(center=rect.center)
             self.screen.blit(label_surface, label_rect)
+            
+    def draw_buttons(self) -> None:
+        """Draw game buttons."""
+        self.shop_button.draw(
+            screen=self.screen,
+            font=self.font,
+            normal_color=BUTTON_NORMAL_COLOR,
+            hover_color=BUTTON_HOVER_COLOR,
+            border_color=BUTTON_BORDER_COLOR,
+            text_color=BUTTON_TEXT_COLOR,
+        )
 
     def quit(self) -> None:
         """Cleanly quit pygame."""
