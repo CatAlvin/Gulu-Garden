@@ -53,7 +53,7 @@ from config import (
     BACKGROUND_DAYTIME_IMAGE,
     PLOT_EMPTY_IMAGE,
     PLOT_LOCKED_IMAGE,
-    CROP_DRAW_OFFSET_Y,
+    CROP_BASE_OFFSET_Y,
     CROP_STAGE_IMAGE_PATHS,
     CROP_STAGE_IMAGE_SIZE,
 )
@@ -703,9 +703,9 @@ class Game:
             return False
 
         crop_rect = crop_image.get_rect(
-            center=(
+            midbottom=(
                 plot_rect.centerx,
-                plot_rect.centery + CROP_DRAW_OFFSET_Y,
+                plot_rect.centery + CROP_BASE_OFFSET_Y,
             )
         )
 

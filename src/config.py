@@ -54,11 +54,15 @@ CROP_STAGE_IMAGE_PATHS = {
     }
 }
 
-CROP_STAGE_IMAGE_SIZE = 88
+# =========================
+# Crop Image Drawing Settings
+# =========================
 
-# 负数表示作物向上移动。
-# 当前土地贴图有轻微透视，所以作物需要稍微往上摆一点。
-CROP_DRAW_OFFSET_Y = -40
+CROP_STAGE_IMAGE_SIZE = 96
+
+# 作物底部对齐到土地内部的“种植线”。
+# 正数表示更靠下，负数表示更靠上。
+CROP_BASE_OFFSET_Y = 4
 
 SHOP_BUTTON_NORMAL_IMAGE = UI_IMAGES_DIR / "button_shop_normal.png"
 SHOP_BUTTON_HOVER_IMAGE = UI_IMAGES_DIR / "button_shop_hover.png"
@@ -75,29 +79,19 @@ BACKGROUND_COLOR = (188, 224, 170)
 # Farm Plot Layout Settings
 # =========================
 
-# 使用交错式农田布局：
-# 第 1 行：6 块
-# 第 2 行：8 块
-# 第 3 行：6 块
-# 中间行更宽，适合后续接入圆角/圆形土地贴图。
 PLOT_ROW_COUNTS = [6, 8, 6]
 
 PLOT_ROWS = len(PLOT_ROW_COUNTS)
 PLOT_COLUMNS = max(PLOT_ROW_COUNTS)
 PLOT_TOTAL = sum(PLOT_ROW_COUNTS)
 
-# 仍然只开放前 4 块，避免视觉优化影响当前经济节奏。
-# 后续做土地解锁系统时再逐步开放更多土地。
 PLOT_UNLOCKED_COUNT = 4
 
-# 后续接入土地贴图时，这个尺寸会作为贴图显示尺寸。
 PLOT_SIZE = 128
 
 PLOT_GAP_X = 1
 PLOT_GAP_Y = 2
 
-# 农田区域用于承载 6-8-6 交错布局。
-# 区域宽度需要覆盖中间 8 块地，整体略微下移，避开顶部 HUD。
 FARM_AREA_X = 180
 FARM_AREA_Y = 300
 FARM_AREA_WIDTH = 920
