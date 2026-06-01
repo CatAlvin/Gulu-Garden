@@ -63,7 +63,7 @@ assets/images/tiles/plot_empty.png
 英文提示词：
 
 ```text
-A single empty farm plot tile for a cute fantasy farming game, 512x512, transparent background, high-resolution cartoon style, soft rounded square soil patch, warm brown soil, slightly raised soft edges, gentle highlights, cozy casual game asset, clean outline, centered object, no text, no watermark, not pixel art, not realistic
+A single empty farm plot tile for a cute fantasy farming game, 512x512, true  true transparent background, PNG with alpha channel, PNG with alpha channel, high-resolution cute cartoon style, soft rounded square soil patch, warm brown soil, slightly raised soft clay edges, gentle highlights, clean soft outline, centered object, enough empty transparent padding around the object, top-down or very light top-down 2D game asset, cozy casual farming game style, no text, no watermark, not pixel art, not realistic, no checkerboard background, do not draw a transparency grid, background must be fully transparent
 ```
 
 ---
@@ -87,7 +87,7 @@ assets/images/tiles/plot_locked.png
 英文提示词：
 
 ```text
-A locked farm plot tile for a cute fantasy farming game, 512x512, transparent background, high-resolution cartoon style, rounded square soil patch covered with soft gray-blue stones, subtle locked feeling, small cute wooden sign without text or tiny chain detail, clean outline, centered object, cozy casual game asset, no text, no watermark, not pixel art, not realistic
+A locked farm plot tile for a cute fantasy farming game, 512x512, true  true transparent background, PNG with alpha channel, PNG with alpha channel, high-resolution cartoon style, rounded square soil patch covered with soft gray-blue stones, subtle locked feeling, small cute wooden sign without text or tiny chain detail, clean outline, centered object, cozy casual game asset, no text, no watermark, not pixel art, not realistic
 ```
 
 ---
@@ -112,7 +112,7 @@ assets/images/crops/starbubble_radish/stage_0_seed.png
 英文提示词：
 
 ```text
-A cute fantasy crop growth stage asset, Starbubble Radish seed stage, 512x512, transparent background, high-resolution cute cartoon style, tiny glowing seed with soft pastel pink and lavender tones, small star pattern, gentle magical glow, centered object, clean outline, cozy farming game asset, no soil base, no text, no watermark, not pixel art, not realistic
+A cute fantasy crop growth stage asset, Starbubble Radish seed stage, stage 0, 512x512, solid pure chroma key green background, background color must be exactly RGB(0,255,0) / HEX #00FF00, not transparent, no checkerboard pattern, no fake transparency, high-resolution cute cartoon style, tiny magical seed, soft pastel pink, lavender, creamy white colors, small star patterns printed on the seed body, glossy but not glowing, centered object, the object must be centered both horizontally and vertically, object should occupy about 30% to 40% of the canvas height, clean outer silhouette, crisp cutout edge, no glow, no aura, no bloom, no light halo, no floating sparkles, no shadow outside the object, no soil base, no ground, no platform, cozy farming game asset, no text, no watermark, not pixel art, not realistic
 ```
 
 ---
@@ -136,7 +136,7 @@ assets/images/crops/starbubble_radish/stage_1_sprout.png
 英文提示词：
 
 ```text
-A cute fantasy crop growth stage asset, Starbubble Radish sprout stage, 512x512, transparent background, high-resolution cute cartoon style, small sprout with two soft green leaves, tiny glowing star sparkle on leaf tips, pastel pink-lavender seed base barely visible, centered object, clean outline, cozy whimsical farming game asset, no text, no watermark, not pixel art, not realistic
+A cute fantasy crop growth stage asset, Starbubble Radish sprout stage, stage 1, 512x512, solid pure chroma key green background, background color must be exactly RGB(0,255,0) / HEX #00FF00, not transparent, no checkerboard pattern, no fake transparency, high-resolution cute cartoon style, small sprout with two soft rounded leaves, leaf color should be soft muted mint green and must not match the pure green background, tiny flat star-shaped marks on the leaf tips, pastel pink-lavender seed base barely visible, centered object, the object must be centered both horizontally and vertically, object should occupy about 40% to 50% of the canvas height, clean outer silhouette, crisp cutout edge, no glow, no aura, no bloom, no light halo, no floating sparkles, no shadow outside the object, no soil base, no ground, no platform, cozy whimsical farming game asset, no text, no watermark, not pixel art, not realistic
 ```
 
 ---
@@ -160,7 +160,7 @@ assets/images/crops/starbubble_radish/stage_2_growing.png
 英文提示词：
 
 ```text
-A cute fantasy crop growth stage asset, Starbubble Radish growing stage, 512x512, transparent background, high-resolution cute cartoon style, chubby radish body partially emerging from the ground shape but without a soil tile, pastel pink and creamy white radish, larger soft green leaves, a few tiny glowing star bubbles floating around, centered object, clean outline, cozy whimsical farming game asset, no text, no watermark, not pixel art, not realistic
+A cute fantasy crop growth stage asset, Starbubble Radish growing stage, stage 2, 512x512, solid pure chroma key green background, background color must be exactly RGB(0,255,0) / HEX #00FF00, not transparent, no checkerboard pattern, no fake transparency, high-resolution cute cartoon style, chubby radish body partially visible above the planting line but without any soil tile, pastel pink, lavender, and creamy white radish body, larger soft rounded leaves, leaf color should be soft muted mint green and must not match the pure green background, a few small solid star-bubble ornaments around the radish, the star-bubbles must be flat decorative shapes, not glowing particles, centered object, the object must be centered both horizontally and vertically, object should occupy about 55% to 65% of the canvas height, clean outer silhouette, crisp cutout edge, no glow, no aura, no bloom, no light halo, no sparkle effects, no shadow outside the object, no soil base, no ground, no platform, cozy whimsical farming game asset, no text, no watermark, not pixel art, not realistic
 ```
 
 ---
@@ -185,7 +185,7 @@ assets/images/crops/starbubble_radish/stage_3_mature.png
 英文提示词：
 
 ```text
-A cute fantasy crop growth stage asset, fully mature Starbubble Radish, 512x512, transparent background, high-resolution cute cartoon style, round chubby radish body, pastel pink lavender and creamy white colors, soft green leaves, tiny glowing star bubbles floating around it, clearly harvestable, adorable cozy farming game asset, centered object, clean outline, no text, no watermark, not pixel art, not realistic
+A cute fantasy crop growth stage asset, fully mature Starbubble Radish, stage 3, 512x512, solid pure chroma key green background, background color must be exactly RGB(0,255,0) / HEX #00FF00, not transparent, no checkerboard pattern, no fake transparency, high-resolution cute cartoon style, round chubby harvestable radish body, pastel pink, lavender, and creamy white colors, soft rounded leaves, leaf color should be soft muted mint green and must not match the pure green background, several small solid star-bubble ornaments around the radish, the star-bubbles must look like cute decorative flat shapes, not glowing effects, clearly harvestable, centered object, the object must be centered both horizontally and vertically, object should occupy about 70% to 80% of the canvas height, clean outer silhouette, crisp cutout edge, no glow, no aura, no bloom, no light halo, no sparkle effects, no shadow outside the object, no soil base, no ground, no platform, adorable cozy farming game asset, no text, no watermark, not pixel art, not realistic
 ```
 
 ---
@@ -209,7 +209,7 @@ assets/images/ui/button_shop_normal.png
 英文提示词：
 
 ```text
-A cute cartoon farming game UI button, normal state, 512x160, transparent background, rounded rectangle, soft cream color, gentle warm shadow, subtle green and orange accents, clean readable design, high-resolution cozy casual game UI asset, empty center area for text, no text, no watermark, not pixel art
+A cute cartoon farming game UI button, shop button normal state, 512x160, solid pure chroma key green background, background color must be exactly RGB(0,255,0) / HEX #00FF00, not transparent, no checkerboard pattern, no fake transparency, high-resolution cozy casual game UI asset, rounded rectangle button, soft cream color, subtle pastel orange and muted green accents, clean readable design, empty center area reserved for text, centered object, the button must be centered both horizontally and vertically, the button should occupy about 85% to 92% of the canvas width and about 70% to 78% of the canvas height, rounded corners must be fully visible, soft inner shadow and very subtle attached contact shadow only, no external glow, no aura, no bloom, no light halo, no text, no letters, no symbols, no watermark, not pixel art
 ```
 
 ---
@@ -233,7 +233,7 @@ assets/images/ui/button_shop_hover.png
 英文提示词：
 
 ```text
-A cute cartoon farming game UI button, hover state, 512x160, transparent background, rounded rectangle, slightly brighter warm cream color than normal state, gentle glow, soft shadow, subtle green and orange accents, clean readable design, high-resolution cozy casual game UI asset, empty center area for text, no text, no watermark, not pixel art
+A cute cartoon farming game UI button, shop button hover state, 512x160, solid pure chroma key green background, background color must be exactly RGB(0,255,0) / HEX #00FF00, not transparent, no checkerboard pattern, no fake transparency, high-resolution cozy casual game UI asset, rounded rectangle button, slightly brighter warm cream color than the normal state, subtle pastel orange and muted green accents, clean readable design, empty center area reserved for text, centered object, the button must be centered both horizontally and vertically, the button should occupy about 85% to 92% of the canvas width and about 70% to 78% of the canvas height, rounded corners must be fully visible, soft inner shadow and very subtle attached contact shadow only, no external glow, no aura, no bloom, no light halo, no text, no letters, no symbols, no watermark, not pixel art
 ```
 
 ---
@@ -257,5 +257,5 @@ assets/images/icons/icon_coin.png
 英文提示词：
 
 ```text
-A cute cartoon gold coin icon for a cozy farming game, 512x512, transparent background, high-resolution, round shiny golden coin, soft highlights, slightly chubby shape, warm cheerful style, clean outline, centered object, no text, no watermark, not pixel art, not realistic
+A cute cartoon gold coin icon for a cozy farming game, 512x512, solid pure chroma key green background, background color must be exactly RGB(0,255,0) / HEX #00FF00, not transparent, no checkerboard pattern, no fake transparency, high-resolution game icon, round shiny golden coin, slightly chubby shape, soft painted highlights on the coin surface only, warm cheerful style, clean outline, centered object, the coin must be centered both horizontally and vertically, the coin should occupy about 70% to 80% of the canvas width and height, crisp cutout edge, no glow, no aura, no bloom, no light halo, no external shadow, no text, no numbers, no letters, no watermark, not pixel art, not realistic
 ```

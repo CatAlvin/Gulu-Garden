@@ -39,13 +39,26 @@ BACKGROUND_DAYTIME_IMAGE = BACKGROUNDS_DIR / "farm_daytime.png"
 PLOT_EMPTY_IMAGE = TILES_DIR / "plot_empty.png"
 PLOT_LOCKED_IMAGE = TILES_DIR / "plot_locked.png"
 
+# =========================
+# Crop Image Asset Paths
+# =========================
+
 STARBUBBLE_RADISH_IMAGE_DIR = CROPS_DIR / "starbubble_radish"
-STARBUBBLE_RADISH_STAGE_IMAGES = {
-    0: STARBUBBLE_RADISH_IMAGE_DIR / "stage_0_seed.png",
-    1: STARBUBBLE_RADISH_IMAGE_DIR / "stage_1_sprout.png",
-    2: STARBUBBLE_RADISH_IMAGE_DIR / "stage_2_growing.png",
-    3: STARBUBBLE_RADISH_IMAGE_DIR / "stage_3_mature.png",
+
+CROP_STAGE_IMAGE_PATHS = {
+    "starbubble_radish": {
+        0: STARBUBBLE_RADISH_IMAGE_DIR / "stage_0_seed.png",
+        1: STARBUBBLE_RADISH_IMAGE_DIR / "stage_1_sprout.png",
+        2: STARBUBBLE_RADISH_IMAGE_DIR / "stage_2_growing.png",
+        3: STARBUBBLE_RADISH_IMAGE_DIR / "stage_3_mature.png",
+    }
 }
+
+CROP_STAGE_IMAGE_SIZE = 88
+
+# 负数表示作物向上移动。
+# 当前土地贴图有轻微透视，所以作物需要稍微往上摆一点。
+CROP_DRAW_OFFSET_Y = -40
 
 SHOP_BUTTON_NORMAL_IMAGE = UI_IMAGES_DIR / "button_shop_normal.png"
 SHOP_BUTTON_HOVER_IMAGE = UI_IMAGES_DIR / "button_shop_hover.png"
@@ -80,7 +93,7 @@ PLOT_UNLOCKED_COUNT = 4
 # 后续接入土地贴图时，这个尺寸会作为贴图显示尺寸。
 PLOT_SIZE = 128
 
-PLOT_GAP_X = 2
+PLOT_GAP_X = 1
 PLOT_GAP_Y = 2
 
 # 农田区域用于承载 6-8-6 交错布局。

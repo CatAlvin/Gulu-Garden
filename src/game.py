@@ -53,6 +53,9 @@ from config import (
     BACKGROUND_DAYTIME_IMAGE,
     PLOT_EMPTY_IMAGE,
     PLOT_LOCKED_IMAGE,
+    CROP_DRAW_OFFSET_Y,
+    CROP_STAGE_IMAGE_PATHS,
+    CROP_STAGE_IMAGE_SIZE,
 )
 
 from models.inventory import Inventory
@@ -106,6 +109,7 @@ class Game:
             size=(PLOT_SIZE, PLOT_SIZE),
             use_alpha=True,
         )
+        self.crop_stage_images = self.load_crop_stage_images()
 
         self.font = pygame.font.SysFont("Microsoft YaHei", 24)
         self.crop_data = self.load_crop_data()
@@ -147,6 +151,17 @@ class Game:
 
         with crops_path.open("r", encoding="utf-8") as file:
             return json.load(file)
+    
+    def get_crop_stage_image(
+    self,
+        crop_id: str | None,
+        current_stage: int | None,
+    ) -> pygame.Surface | None:
+        """Return crop image for current crop stage."""
+        if crop_id is None or current_stage is None:
+            return None
+
+        return self.crop_stage_images.get(crop_id, {}).get(current_stage)
     
     def create_plots(self) -> list[Plot]:
         """Create farm plots with a staggered row layout."""
@@ -194,6 +209,25 @@ class Game:
 
         with shop_items_path.open("r", encoding="utf-8") as file:
             return json.load(file)
+        
+    def load_crop_stage_images(self) -> dict[str, dict[int, pygame.Surface]]:
+        """Load crop stage images for all configured crops."""
+        crop_images: dict[str, dict[int, pygame.Surface]] = {}
+
+        for crop_id, stage_paths in CROP_STAGE_IMAGE_PATHS.items():
+            crop_images[crop_id] = {}
+
+            for stage, image_path in stage_paths.items():
+                image = self.asset_loader.load_image(
+                    image_path,
+                    size=(CROP_STAGE_IMAGE_SIZE, CROP_STAGE_IMAGE_SIZE),
+                    use_alpha=True,
+                )
+
+                if image is not None:
+                    crop_images[crop_id][stage] = image
+
+        return crop_images
         
     def build_save_data(self) -> dict:
         """Build current game state as JSON-serializable data."""
@@ -630,6 +664,14 @@ class Game:
                     border_radius=14,
                 )
 
+            crop_image_drawn = False
+
+            if plot.crop_id is not None:
+                crop_image_drawn = self.draw_crop_on_plot(plot, rect)
+
+            if crop_image_drawn:
+                continue
+
             if plot.status == PLOT_PLANTED:
                 label_text = "P"
                 label_color = PLOT_PLANTED_TEXT_COLOR
@@ -646,6 +688,29 @@ class Game:
             label_surface = self.font.render(label_text, True, label_color)
             label_rect = label_surface.get_rect(center=rect.center)
             self.screen.blit(label_surface, label_rect)
+
+    def draw_crop_on_plot(self, plot: Plot, plot_rect: pygame.Rect) -> bool:
+        """Draw crop image on a plot.
+
+        Return True if a crop image is drawn.
+        """
+        crop_image = self.get_crop_stage_image(
+            crop_id=plot.crop_id,
+            current_stage=plot.current_stage,
+        )
+
+        if crop_image is None:
+            return False
+
+        crop_rect = crop_image.get_rect(
+            center=(
+                plot_rect.centerx,
+                plot_rect.centery + CROP_DRAW_OFFSET_Y,
+            )
+        )
+
+        self.screen.blit(crop_image, crop_rect)
+        return True
             
     def draw_buttons(self) -> None:
         """Draw game buttons."""
