@@ -34,7 +34,17 @@ CROPS_DIR = ASSETS_DIR / "images" / "crops"
 UI_IMAGES_DIR = ASSETS_DIR / "images" / "ui"
 ICONS_DIR = ASSETS_DIR / "images" / "icons"
 
+BACKGROUND_MORNING_IMAGE = BACKGROUNDS_DIR / "farm_morning.png"
 BACKGROUND_DAYTIME_IMAGE = BACKGROUNDS_DIR / "farm_daytime.png"
+BACKGROUND_EVENING_IMAGE = BACKGROUNDS_DIR / "farm_evening.png"
+BACKGROUND_MIDNIGHT_IMAGE = BACKGROUNDS_DIR / "farm_midnight.png"
+
+DAY_PHASE_BACKGROUND_IMAGES = {
+    "morning": BACKGROUND_MORNING_IMAGE,
+    "daytime": BACKGROUND_DAYTIME_IMAGE,
+    "evening": BACKGROUND_EVENING_IMAGE,
+    "midnight": BACKGROUND_MIDNIGHT_IMAGE,
+}
 
 PLOT_EMPTY_IMAGE = TILES_DIR / "plot_empty.png"
 PLOT_LOCKED_IMAGE = TILES_DIR / "plot_locked.png"
@@ -135,3 +145,28 @@ BACKGROUND_MORNING_COLOR = (205, 230, 190)
 BACKGROUND_DAYTIME_COLOR = (188, 224, 170)
 BACKGROUND_EVENING_COLOR = (230, 184, 128)
 BACKGROUND_MIDNIGHT_COLOR = (74, 91, 130)
+
+# =========================
+# Day Phase Scene Tint Settings
+# =========================
+
+# 用于土地、作物等场景素材的简易昼夜调色。
+# 背景图本身不使用这套调色，因为背景已经是不同时间段的完整图。
+SCENE_TINT_SETTINGS = {
+    "morning": {
+        "multiply": (255, 248, 235),
+        "overlay": (255, 230, 170, 8),
+    },
+    "daytime": {
+        "multiply": (255, 255, 255),
+        "overlay": (255, 255, 255, 0),
+    },
+    "evening": {
+        "multiply": (248, 222, 190),
+        "overlay": (255, 150, 70, 14),
+    },
+    "midnight": {
+        "multiply": (145, 165, 215),
+        "overlay": (35, 70, 140, 18),
+    },
+}

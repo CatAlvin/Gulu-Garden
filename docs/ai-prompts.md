@@ -259,3 +259,185 @@ assets/images/icons/icon_coin.png
 ```text
 A cute cartoon gold coin icon for a cozy farming game, 512x512, solid pure chroma key green background, background color must be exactly RGB(0,255,0) / HEX #00FF00, not transparent, no checkerboard pattern, no fake transparency, high-resolution game icon, round shiny golden coin, slightly chubby shape, soft painted highlights on the coin surface only, warm cheerful style, clean outline, centered object, the coin must be centered both horizontally and vertically, the coin should occupy about 70% to 80% of the canvas width and height, crisp cutout edge, no glow, no aura, no bloom, no light halo, no external shadow, no text, no numbers, no letters, no watermark, not pixel art, not realistic
 ```
+
+---
+
+## 11. 清晨背景：farm_morning.png
+
+保存路径：
+
+```text
+assets/images/backgrounds/farm_morning.png
+```
+
+图片要求：
+
+- 尺寸：2560 × 1440
+- 比例：16:9 横屏
+- 背景：不透明
+- 用途：Morning 阶段主背景
+- 构图：尽量与 `farm_daytime.png` 保持一致
+- 中央区域必须平坦、干净、无遮挡，方便放置 6-8-6 农田布局
+- 色调：柔和清晨光、淡金色、浅蓝色、清新感
+- 不要人物
+- 不要文字
+- 不要水印
+- 不要强透视
+- 不要斜向农田
+- 不要让中央草地出现复杂装饰
+
+英文提示词：
+
+```text
+A cozy cute fantasy vegetable garden background for a casual farming game, 2560x1440, 16:9 horizontal game background, high-resolution cute cartoon style, same composition as the daytime farm background, soft morning light, pale golden sunrise, fresh dew feeling, gentle blue sky, fluffy clouds, warm but very soft lighting, clean flat open central grass area reserved for placing a 2D farm plot grid, small wooden fences around the sides, tiny flowers near the edges, charming cottage in the far background, whimsical healing fantasy garden, clear composition for game UI overlay, no characters, no text, no watermark, not pixel art, not realistic, avoid dramatic perspective, avoid curved ground, avoid diagonal field direction
+```
+
+中文理解：
+
+```text
+一张与白日菜园背景构图尽量一致的清晨版本背景图。画面是柔和晨光、淡金色日出、浅蓝天空、清新露水感。中央草地区域必须保持平坦、干净、无遮挡，方便放置当前 6-8-6 农田布局。不要人物、文字、水印，不要强透视和斜向地面。
+```
+
+---
+
+## 12. 傍晚背景：farm_evening.png
+
+保存路径：
+
+```text
+assets/images/backgrounds/farm_evening.png
+```
+
+图片要求：
+
+- 尺寸：2560 × 1440
+- 比例：16:9 横屏
+- 背景：不透明
+- 用途：Evening 阶段主背景
+- 构图：尽量与 `farm_daytime.png` 保持一致
+- 中央区域必须平坦、干净、无遮挡
+- 色调：温暖橙色夕阳、柔和金光、治愈感
+- 不要把画面做得太暗
+- 不要人物
+- 不要文字
+- 不要水印
+- 不要强透视
+- 不要斜向农田
+
+英文提示词：
+
+```text
+A cozy cute fantasy vegetable garden background for a casual farming game, 2560x1440, 16:9 horizontal game background, high-resolution cute cartoon style, same composition as the daytime farm background, warm orange sunset light, soft golden evening glow, peaceful cozy atmosphere, clean flat open central grass area reserved for placing a 2D farm plot grid, small wooden fences around the sides, tiny flowers near the edges, charming cottage in the far background, sky with gentle sunset colors, whimsical healing fantasy garden, clear composition for game UI overlay, no characters, no text, no watermark, not pixel art, not realistic, avoid making the scene too dark, avoid dramatic perspective, avoid curved ground, avoid diagonal field direction
+```
+
+中文理解：
+
+```text
+一张与白日菜园背景构图尽量一致的傍晚版本背景图。画面应有温暖橙色夕阳、柔和金色光线、安静治愈的傍晚氛围。中央草地仍然必须平坦干净，不能被装饰遮挡。不要太暗，不要人物、文字、水印，不要强透视。
+```
+
+---
+
+## 13. 午夜背景：farm_midnight.png
+
+保存路径：
+
+```text
+assets/images/backgrounds/farm_midnight.png
+```
+
+图片要求：
+
+- 尺寸：2560 × 1440
+- 比例：16:9 横屏
+- 背景：不透明
+- 用途：Midnight 阶段主背景
+- 构图：尽量与 `farm_daytime.png` 保持一致
+- 中央区域必须平坦、干净、无遮挡
+- 色调：深蓝夜色、月光、星光、轻微奇幻感
+- 画面要有夜晚感，但不能黑到看不清农田
+- 不要恐怖风
+- 不要暗黑奇幻风
+- 不要人物
+- 不要文字
+- 不要水印
+- 不要强透视
+
+英文提示词：
+
+```text
+A cozy cute fantasy vegetable garden background for a casual farming game, 2560x1440, 16:9 horizontal game background, high-resolution cute cartoon style, same composition as the daytime farm background, peaceful midnight garden, deep blue night sky, soft moonlight, tiny stars, subtle magical glow from small plants near the edges, clean flat open central grass area reserved for placing a 2D farm plot grid, small wooden fences around the sides, charming cottage in the far background with very soft warm window light, whimsical healing fantasy garden, clear composition for game UI overlay, no characters, no text, no watermark, not pixel art, not realistic, not horror, not dark fantasy, avoid making the scene too dark, avoid dramatic perspective, avoid curved ground, avoid diagonal field direction
+```
+
+中文理解：
+
+```text
+一张与白日菜园背景构图尽量一致的午夜版本背景图。画面是深蓝夜空、月光、星星、小植物有轻微奇幻光感，小屋窗户可以有柔和暖光。整体要有夜晚感，但不能黑到看不清农田。不要恐怖风、暗黑风、人物、文字、水印。
+```
+
+---
+
+## 14. 昼夜场景素材调色规则
+
+说明：
+
+```text
+当前土地和作物素材默认是 daytime 色调。后续 Version 1.0.2 接入昼夜背景后，不为每个昼夜阶段重新生成土地和作物素材，而是在加载或绘制时对场景素材做简易调色。
+```
+
+调色对象：
+
+```text
+参与调色：
+- 土地贴图
+- 作物贴图
+- 后续装饰物贴图
+- 后续场景特效
+
+不参与调色：
+- HUD 文字
+- UI 按钮
+- 商店面板
+- 金币图标
+- 背包图标
+- 图鉴图标
+```
+
+阶段调色目标：
+
+```text
+morning:
+- 略微变亮
+- 轻微偏暖
+- 保持清新感
+
+daytime:
+- 使用原图
+- 不额外调色
+
+evening:
+- 轻微变暗
+- 偏橙色
+- 保持温暖夕阳感
+
+midnight:
+- 明显变暗
+- 偏蓝色
+- 但不能黑到看不清作物状态
+```
+
+实现原则：
+
+```text
+调色结果应当缓存，不要每一帧重新计算。
+推荐缓存结构：
+(image_path, size, phase) -> tinted_surface
+```
+
+后续代码位置建议：
+
+```text
+src/utils/image_tint.py
+或扩展：
+src/utils/asset_loader.py
+```

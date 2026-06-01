@@ -50,7 +50,8 @@ from config import (
     PLOT_GROWING_TEXT_COLOR,
     PLOT_MATURE_COLOR,
     PLOT_MATURE_TEXT_COLOR,
-    BACKGROUND_DAYTIME_IMAGE,
+    DAY_PHASE_BACKGROUND_IMAGES,
+    SCENE_TINT_SETTINGS,
     PLOT_EMPTY_IMAGE,
     PLOT_LOCKED_IMAGE,
     CROP_BASE_OFFSET_Y,
@@ -93,22 +94,8 @@ class Game:
         self.running = True
         
         self.asset_loader = AssetLoader()
-        self.background_image = self.asset_loader.load_image(
-            BACKGROUND_DAYTIME_IMAGE,
-            size=(SCREEN_WIDTH, SCREEN_HEIGHT),
-            use_alpha=False,
-        )
-        self.plot_empty_image = self.asset_loader.load_image(
-            PLOT_EMPTY_IMAGE,
-            size=(PLOT_SIZE, PLOT_SIZE),
-            use_alpha=True,
-        )
-
-        self.plot_locked_image = self.asset_loader.load_image(
-            PLOT_LOCKED_IMAGE,
-            size=(PLOT_SIZE, PLOT_SIZE),
-            use_alpha=True,
-        )
+        self.background_images = self.load_background_images()
+    
         self.crop_stage_images = self.load_crop_stage_images()
 
         self.font = pygame.font.SysFont("Microsoft YaHei", 24)
@@ -151,6 +138,22 @@ class Game:
 
         with crops_path.open("r", encoding="utf-8") as file:
             return json.load(file)
+
+    def load_background_images(self) -> dict[str, pygame.Surface]:
+        """Load day phase background images."""
+        background_images: dict[str, pygame.Surface] = {}
+
+        for phase, image_path in DAY_PHASE_BACKGROUND_IMAGES.items():
+            image = self.asset_loader.load_image(
+                image_path=image_path,
+                size=(SCREEN_WIDTH, SCREEN_HEIGHT),
+                use_alpha=False,
+            )
+
+            if image is not None:
+                background_images[phase] = image
+
+        return background_images
     
     def get_crop_stage_image(
     self,
@@ -162,6 +165,26 @@ class Game:
             return None
 
         return self.crop_stage_images.get(crop_id, {}).get(current_stage)
+    
+    def get_plot_empty_image(self) -> pygame.Surface | None:
+        """Return tinted empty plot image for current day phase."""
+        return self.asset_loader.load_tinted_image(
+            image_path=PLOT_EMPTY_IMAGE,
+            size=(PLOT_SIZE, PLOT_SIZE),
+            phase=self.current_day_phase,
+            tint_settings=SCENE_TINT_SETTINGS,
+            use_alpha=True,
+        )
+
+    def get_plot_locked_image(self) -> pygame.Surface | None:
+        """Return tinted locked plot image for current day phase."""
+        return self.asset_loader.load_tinted_image(
+            image_path=PLOT_LOCKED_IMAGE,
+            size=(PLOT_SIZE, PLOT_SIZE),
+            phase=self.current_day_phase,
+            tint_settings=SCENE_TINT_SETTINGS,
+            use_alpha=True,
+        )
     
     def create_plots(self) -> list[Plot]:
         """Create farm plots with a staggered row layout."""
@@ -228,6 +251,33 @@ class Game:
                     crop_images[crop_id][stage] = image
 
         return crop_images
+
+    def get_tinted_crop_stage_image(
+        self,
+        crop_id: str | None,
+        current_stage: int | None,
+    ) -> pygame.Surface | None:
+        """Return tinted crop stage image for current day phase."""
+        if crop_id is None or current_stage is None:
+            return None
+
+        crop_stage_paths = CROP_STAGE_IMAGE_PATHS.get(crop_id)
+
+        if crop_stage_paths is None:
+            return None
+
+        image_path = crop_stage_paths.get(current_stage)
+
+        if image_path is None:
+            return None
+
+        return self.asset_loader.load_tinted_image(
+            image_path=image_path,
+            size=(CROP_STAGE_IMAGE_SIZE, CROP_STAGE_IMAGE_SIZE),
+            phase=self.current_day_phase,
+            tint_settings=SCENE_TINT_SETTINGS,
+            use_alpha=True,
+        )
         
     def build_save_data(self) -> dict:
         """Build current game state as JSON-serializable data."""
@@ -589,9 +639,17 @@ class Game:
         pygame.display.flip()
     
     def draw_background(self) -> None:
-        """Draw background image or fallback day phase color."""
-        if self.background_image is not None:
-            self.screen.blit(self.background_image, (0, 0))
+        """Draw current day phase background image or fallback color."""
+        background_image = self.background_images.get(self.current_day_phase)
+
+        if background_image is not None:
+            self.screen.blit(background_image, (0, 0))
+            return
+
+        daytime_background = self.background_images.get("daytime")
+
+        if daytime_background is not None:
+            self.screen.blit(daytime_background, (0, 0))
             return
 
         self.screen.fill(self.get_background_color())
@@ -635,9 +693,9 @@ class Game:
             rect = pygame.Rect(plot.x, plot.y, plot.width, plot.height)
 
             if plot.is_locked():
-                plot_image = self.plot_locked_image
+                plot_image = self.get_plot_locked_image()
             else:
-                plot_image = self.plot_empty_image
+                plot_image = self.get_plot_empty_image()
 
             if plot_image is not None:
                 self.screen.blit(plot_image, rect)
@@ -694,7 +752,7 @@ class Game:
 
         Return True if a crop image is drawn.
         """
-        crop_image = self.get_crop_stage_image(
+        crop_image = self.get_tinted_crop_stage_image(
             crop_id=plot.crop_id,
             current_stage=plot.current_stage,
         )
