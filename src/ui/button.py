@@ -2,7 +2,7 @@ import pygame
 
 
 class Button:
-    """Simple rectangular UI button."""
+    """Simple UI button with optional image skins."""
 
     def __init__(
         self,
@@ -31,17 +31,39 @@ class Button:
         hover_color: tuple[int, int, int],
         border_color: tuple[int, int, int],
         text_color: tuple[int, int, int],
+        normal_image: pygame.Surface | None = None,
+        hover_image: pygame.Surface | None = None,
     ) -> None:
-        """Draw the button."""
+        """Draw the button.
+
+        Use image skins if available. Otherwise, draw the old rectangle button.
+        """
         mouse_pos = pygame.mouse.get_pos()
+        hovered = self.is_hovered(mouse_pos)
 
-        if self.is_hovered(mouse_pos):
-            color = hover_color
+        button_image = None
+
+        if hovered and hover_image is not None:
+            button_image = hover_image
+        elif normal_image is not None:
+            button_image = normal_image
+
+        if button_image is not None:
+            screen.blit(button_image, self.rect)
         else:
-            color = normal_color
+            if hovered:
+                color = hover_color
+            else:
+                color = normal_color
 
-        pygame.draw.rect(screen, color, self.rect, border_radius=14)
-        pygame.draw.rect(screen, border_color, self.rect, width=3, border_radius=14)
+            pygame.draw.rect(screen, color, self.rect, border_radius=14)
+            pygame.draw.rect(
+                screen,
+                border_color,
+                self.rect,
+                width=3,
+                border_radius=14,
+            )
 
         text_surface = font.render(self.text, True, text_color)
         text_rect = text_surface.get_rect(center=self.rect.center)

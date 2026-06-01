@@ -37,7 +37,6 @@ from config import (
     PLOT_PLANTED_TEXT_COLOR,
     PLOT_BORDER_COLOR,
     PLOT_SIZE,
-    PLOT_TOTAL,
     PLOT_UNLOCKED_COUNT,
     FARM_AREA_X,
     FARM_AREA_Y,
@@ -58,6 +57,31 @@ from config import (
     CROP_STAGE_IMAGE_PATHS,
     CROP_STAGE_IMAGE_SIZE,
     ENABLE_DAY_PHASE_PREVIEW_KEYS,
+    SHOP_BUTTON_NORMAL_IMAGE,
+    SHOP_BUTTON_HOVER_IMAGE,
+    ICON_COIN_IMAGE,
+    HUD_ICON_SIZE,
+    HUD_COIN_ICON_X,
+    HUD_COIN_ICON_Y,
+    HUD_COIN_TEXT_X,
+    HUD_COIN_TEXT_Y,
+    HUD_SEED_TEXT_X,
+    HUD_SEED_TEXT_Y,
+    HUD_TIME_TEXT_X,
+    HUD_TIME_TEXT_Y,
+    ICON_SEED_STARBUBBLE_RADISH_IMAGE,
+    HUD_SEED_ICON_X,
+    HUD_SEED_ICON_Y,
+    HUD_PANEL_X,
+    HUD_PANEL_Y,
+    HUD_PANEL_WIDTH,
+    HUD_PANEL_HEIGHT,
+    HUD_PANEL_BORDER_RADIUS,
+    HUD_PANEL_BACKGROUND_COLOR,
+    HUD_PANEL_BORDER_COLOR,
+    HUD_PANEL_SHADOW_COLOR,
+    HUD_PANEL_SHADOW_OFFSET_X,
+    HUD_PANEL_SHADOW_OFFSET_Y,
 )
 
 from models.inventory import Inventory
@@ -98,6 +122,30 @@ class Game:
         self.background_images = self.load_background_images()
     
         self.crop_stage_images = self.load_crop_stage_images()
+
+        self.shop_button_normal_image = self.asset_loader.load_image(
+            SHOP_BUTTON_NORMAL_IMAGE,
+            size=(SHOP_BUTTON_WIDTH, SHOP_BUTTON_HEIGHT),
+            use_alpha=True,
+        )
+
+        self.shop_button_hover_image = self.asset_loader.load_image(
+            SHOP_BUTTON_HOVER_IMAGE,
+            size=(SHOP_BUTTON_WIDTH, SHOP_BUTTON_HEIGHT),
+            use_alpha=True,
+        )
+
+        self.coin_icon_image = self.asset_loader.load_image(
+            ICON_COIN_IMAGE,
+            size=(HUD_ICON_SIZE, HUD_ICON_SIZE),
+            use_alpha=True,
+        )
+        
+        self.seed_icon_image = self.asset_loader.load_image(
+            ICON_SEED_STARBUBBLE_RADISH_IMAGE,
+            size=(HUD_ICON_SIZE, HUD_ICON_SIZE),
+            use_alpha=True,
+        )
 
         self.font = pygame.font.SysFont("Microsoft YaHei", 24)
         self.crop_data = self.load_crop_data()
@@ -666,9 +714,10 @@ class Game:
         """Draw everything on the screen."""
         self.draw_background()
 
+        self.draw_hud_panel()
         self.draw_hud()
         self.draw_message()
-        # self.draw_farm_area_debug() # TODO: 在接入背景图和土地贴图后去掉这个农田区域调试边框
+
         self.draw_plots()
         self.draw_buttons()
 
@@ -689,26 +738,102 @@ class Game:
             return
 
         self.screen.fill(self.get_background_color())
+
+    def draw_transparent_rounded_rect(
+        self,
+        x: int,
+        y: int,
+        width: int,
+        height: int,
+        background_color: tuple[int, int, int, int],
+        border_color: tuple[int, int, int, int],
+        border_radius: int,
+        border_width: int = 2,
+    ) -> None:
+        """Draw a transparent rounded rectangle on the screen."""
+        panel_surface = pygame.Surface((width, height), pygame.SRCALPHA)
+
+        panel_rect = pygame.Rect(0, 0, width, height)
+
+        pygame.draw.rect(
+            panel_surface,
+            background_color,
+            panel_rect,
+            border_radius=border_radius,
+        )
+
+        if border_width > 0:
+            pygame.draw.rect(
+                panel_surface,
+                border_color,
+                panel_rect,
+                width=border_width,
+                border_radius=border_radius,
+            )
+
+        self.screen.blit(panel_surface, (x, y))
+
+    def draw_hud_panel(self) -> None:
+        """Draw a soft transparent panel behind HUD text."""
+        shadow_x = HUD_PANEL_X + HUD_PANEL_SHADOW_OFFSET_X
+        shadow_y = HUD_PANEL_Y + HUD_PANEL_SHADOW_OFFSET_Y
+
+        self.draw_transparent_rounded_rect(
+            x=shadow_x,
+            y=shadow_y,
+            width=HUD_PANEL_WIDTH,
+            height=HUD_PANEL_HEIGHT,
+            background_color=HUD_PANEL_SHADOW_COLOR,
+            border_color=(0, 0, 0, 0),
+            border_radius=HUD_PANEL_BORDER_RADIUS,
+            border_width=0,
+        )
+
+        self.draw_transparent_rounded_rect(
+            x=HUD_PANEL_X,
+            y=HUD_PANEL_Y,
+            width=HUD_PANEL_WIDTH,
+            height=HUD_PANEL_HEIGHT,
+            background_color=HUD_PANEL_BACKGROUND_COLOR,
+            border_color=HUD_PANEL_BORDER_COLOR,
+            border_radius=HUD_PANEL_BORDER_RADIUS,
+            border_width=2,
+        )
     
     def draw_hud(self) -> None:
         """Draw basic HUD information."""
-        coin_text = f"Coins: {self.player.coins}"
+        if self.coin_icon_image is not None:
+            self.screen.blit(
+                self.coin_icon_image,
+                (HUD_COIN_ICON_X, HUD_COIN_ICON_Y),
+            )
+
+        coin_text = f"{self.player.coins}"
         coin_surface = self.font.render(coin_text, True, TEXT_COLOR)
-        self.screen.blit(coin_surface, (40, 28))
+        self.screen.blit(coin_surface, (HUD_COIN_TEXT_X, HUD_COIN_TEXT_Y))
 
         seed_count = self.inventory.get_seed_count(CROP_STARBUBBLE_RADISH)
-        seed_text = f"Starbubble Seeds: {seed_count}"
+
+        if self.seed_icon_image is not None:
+            self.screen.blit(
+                self.seed_icon_image,
+                (HUD_SEED_ICON_X, HUD_SEED_ICON_Y),
+            )
+
+        seed_text = f"{seed_count}"
         seed_surface = self.font.render(seed_text, True, TEXT_COLOR)
-        self.screen.blit(seed_surface, (220, 28))
+        self.screen.blit(seed_surface, (HUD_SEED_TEXT_X, HUD_SEED_TEXT_Y))
 
         current_time_text = self.time_system.get_current_time_text()
         phase_label = self.time_system.get_day_phase_label(self.current_day_phase)
+
         if self.day_phase_preview_override is None:
             time_text = f"Time: {current_time_text} | Phase: {phase_label}"
         else:
             time_text = f"Time: {current_time_text} | Phase: {phase_label} (Preview)"
+
         time_surface = self.font.render(time_text, True, TEXT_COLOR)
-        self.screen.blit(time_surface, (560, 28))
+        self.screen.blit(time_surface, (HUD_TIME_TEXT_X, HUD_TIME_TEXT_Y))
 
     def draw_message(self) -> None:
         """Draw current status message."""
@@ -818,6 +943,8 @@ class Game:
             hover_color=BUTTON_HOVER_COLOR,
             border_color=BUTTON_BORDER_COLOR,
             text_color=BUTTON_TEXT_COLOR,
+            normal_image=self.shop_button_normal_image,
+            hover_image=self.shop_button_hover_image,
         )
 
     def quit(self) -> None:

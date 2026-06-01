@@ -77,6 +77,7 @@ CROP_BASE_OFFSET_Y = 4
 SHOP_BUTTON_NORMAL_IMAGE = UI_IMAGES_DIR / "button_shop_normal.png"
 SHOP_BUTTON_HOVER_IMAGE = UI_IMAGES_DIR / "button_shop_hover.png"
 ICON_COIN_IMAGE = ICONS_DIR / "icon_coin.png"
+ICON_SEED_STARBUBBLE_RADISH_IMAGE = ICONS_DIR / "icon_seed_starbubble_radish.png"
 
 # =========================
 # Colors
@@ -136,6 +137,46 @@ BUTTON_NORMAL_COLOR = (248, 224, 168)
 BUTTON_HOVER_COLOR = (255, 236, 188)
 BUTTON_BORDER_COLOR = (130, 96, 55)
 BUTTON_TEXT_COLOR = (70, 52, 35)
+
+# =========================
+# HUD Icon Settings
+# =========================
+
+HUD_ICON_SIZE = 34
+
+HUD_COIN_ICON_X = 36
+HUD_COIN_ICON_Y = 22
+HUD_COIN_TEXT_X = 78
+HUD_COIN_TEXT_Y = 26
+
+HUD_SEED_ICON_X = 180
+HUD_SEED_ICON_Y = 22
+HUD_SEED_TEXT_X = 222
+HUD_SEED_TEXT_Y = 26
+
+HUD_TIME_TEXT_X = 560
+HUD_TIME_TEXT_Y = 26
+
+# =========================
+# HUD Panel Settings
+# =========================
+
+HUD_PANEL_X = 24
+HUD_PANEL_Y = 14
+HUD_PANEL_WIDTH = 1040
+HUD_PANEL_HEIGHT = 92
+HUD_PANEL_BORDER_RADIUS = 18
+
+# 半透明奶油色背板，保证文字可读，但不完全挡住背景。
+HUD_PANEL_BACKGROUND_COLOR = (255, 246, 220, 110)
+
+# 柔和棕色边框。
+HUD_PANEL_BORDER_COLOR = (132, 96, 58, 85)
+
+# 轻微阴影，增加层次感。
+HUD_PANEL_SHADOW_COLOR = (0, 0, 0, 28)
+HUD_PANEL_SHADOW_OFFSET_X = 3
+HUD_PANEL_SHADOW_OFFSET_Y = 3
 
 # =========================
 # Day Phase Background Colors
