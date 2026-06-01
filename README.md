@@ -10,7 +10,7 @@
 
 ## 当前版本
 
-Version 1.0.1 — 基础视觉素材替换版
+Version 1.0.2 — 昼夜背景贴图与场景调色系统
 
 当前版本已经完成基础种菜闭环：
 
@@ -41,6 +41,19 @@ Version 1.0.1 — 基础视觉素材替换版
 - 作物贴图使用底部锚点绘制，更像从土地里长出
 - 素材缺失时仍然保留 fallback 显示
 
+- 添加清晨、白日、傍晚、午夜四套背景图
+- 根据现实时间自动切换昼夜背景
+- 添加昼夜预览调试键
+- 按 `1` 预览 Morning
+- 按 `2` 预览 Daytime
+- 按 `3` 预览 Evening
+- 按 `4` 预览 Midnight
+- 按 `0` 恢复真实时间阶段
+- 土地贴图会根据当前昼夜阶段进行简易调色
+- 星泡萝卜贴图会根据当前昼夜阶段进行简易调色
+- 调色系统保留透明背景，不污染 Alpha 通道
+- UI、文字和按钮暂时不参与昼夜调色，保证可读性
+
 ---
 
 ## 游戏截图
@@ -49,8 +62,20 @@ Version 1.0.1 — 基础视觉素材替换版
 
 当前截图展示了 Version 1.0 候选版本的基础界面，包括金币、种子数量、现实时间阶段、农田格子、商店按钮和作物成长状态。
 
+### Version 1.0.1 视觉素材替换
+
 ![Gulu Garden Visual Update](docs/images/gulu_garden_v1_0_1_visual_update.png)
 当前截图展示了 Version 1.0.1 的视觉素材替换效果，包括新的背景图、土地贴图和作物贴图。
+
+### Version 1.0.2 昼夜背景与场景调色
+
+![Gulu Garden Morning](docs/images/gulu_garden_v1_0_2_morning.png)
+
+![Gulu Garden Daytime](docs/images/gulu_garden_v1_0_2_daytime.png)
+
+![Gulu Garden Evening](docs/images/gulu_garden_v1_0_2_evening.png)
+
+![Gulu Garden Midnight](docs/images/gulu_garden_v1_0_2_midnight.png)
 
 ---
 
@@ -146,6 +171,8 @@ python src/main.py
 
 ## 项目结构
 
+## 项目结构
+
 ```text
 Gulu-Garden/
 ├─ README.md
@@ -158,14 +185,41 @@ Gulu-Garden/
 │  ├─ save-format.md
 │  ├─ project-structure.md
 │  ├─ development-log.md
+│  ├─ ai-prompts.md
 │  ├─ version-1.0-release-checklist.md
 │  └─ images/
+│     ├─ gulu_garden_v1_0_main_window.png
+│     ├─ gulu_garden_v1_0_1_visual_update.png
+│     ├─ gulu_garden_v1_0_2_morning.png
+│     ├─ gulu_garden_v1_0_2_daytime.png
+│     ├─ gulu_garden_v1_0_2_evening.png
+│     └─ gulu_garden_v1_0_2_midnight.png
 ├─ data/
 │  ├─ crops.json
-│  └─ shop_items.json
+│  ├─ shop_items.json
+│  └─ tasks.json
 ├─ assets/
 │  ├─ images/
+│  │  ├─ backgrounds/
+│  │  │  ├─ farm_morning.png
+│  │  │  ├─ farm_daytime.png
+│  │  │  ├─ farm_evening.png
+│  │  │  └─ farm_midnight.png
+│  │  ├─ crops/
+│  │  │  └─ starbubble_radish/
+│  │  │     ├─ stage_0_seed.png
+│  │  │     ├─ stage_1_sprout.png
+│  │  │     ├─ stage_2_growing.png
+│  │  │     └─ stage_3_mature.png
+│  │  ├─ tiles/
+│  │  │  ├─ plot_empty.png
+│  │  │  └─ plot_locked.png
+│  │  ├─ ui/
+│  │  ├─ icons/
+│  │  └─ effects/
 │  ├─ audio/
+│  │  ├─ bgm/
+│  │  └─ sfx/
 │  └─ fonts/
 ├─ saves/
 │  └─ .gitkeep
@@ -174,18 +228,29 @@ Gulu-Garden/
 │  ├─ config.py
 │  ├─ game.py
 │  ├─ models/
+│  │  ├─ **init**.py
+│  │  ├─ crop.py
 │  │  ├─ inventory.py
 │  │  ├─ player.py
 │  │  └─ plot.py
 │  ├─ systems/
+│  │  ├─ **init**.py
 │  │  ├─ save_system.py
 │  │  ├─ shop_system.py
+│  │  ├─ task_system.py
 │  │  └─ time_system.py
 │  ├─ ui/
-│  │  └─ button.py
+│  │  ├─ **init**.py
+│  │  ├─ button.py
+│  │  ├─ hud.py
+│  │  └─ panel.py
 │  └─ utils/
-│     └─ constants.py
+│     ├─ **init**.py
+│     ├─ asset_loader.py
+│     ├─ constants.py
+│     └─ image_tint.py
 └─ tests/
+└─ test_save_system.py
 ```
 
 ---
@@ -222,32 +287,38 @@ Gulu-Garden/
 * 音效系统
 * exe 打包发布
 
+- 昼夜平滑渐变
+- 天气系统
+- 季节系统
+- 昼夜影响作物成长速度
+- 昼夜影响完美品质概率
+- 正式商店面板
+- 金币图标
+- 种子图标
+- HUD 背板
+- 音效系统
+- 动画系统
+
 ---
 
 ## 后续计划
 
-下一步建议为 Version 1.0.2 — 昼夜背景贴图与场景调色系统。
-
-Version 1.0.2 目标：
-
-- 添加清晨背景图
-- 添加傍晚背景图
-- 添加午夜背景图
-- 根据现实时间自动切换背景贴图
-- 对土地、作物等场景素材做简易光照调色
-- 保持 UI、按钮和文字清晰，不让它们被夜晚调得过暗
-
-再下一步建议为 Version 1.0.3 — UI 贴图替换。
+下一步建议为 Version 1.0.3 — HUD、商店按钮、金币图标与基础 UI 贴图替换。
 
 Version 1.0.3 目标：
 
-- 替换商店按钮贴图
+- 替换商店按钮普通状态贴图
+- 替换商店按钮 hover 状态贴图
 - 添加金币图标
 - 添加星泡萝卜种子图标
 - 优化 HUD 显示
-- 准备正式商店面板
+- 保持 UI 不参与昼夜场景调色，保证文字和图标清晰
 
----
+更后续版本：
+
+- Version 1.1：简单任务系统
+- Version 1.2：图鉴基础版
+- Version 1.3：多作物基础版
 
 ## 存档说明
 
