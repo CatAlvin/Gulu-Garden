@@ -57,6 +57,7 @@ from config import (
     CROP_BASE_OFFSET_Y,
     CROP_STAGE_IMAGE_PATHS,
     CROP_STAGE_IMAGE_SIZE,
+    ENABLE_DAY_PHASE_PREVIEW_KEYS,
 )
 
 from models.inventory import Inventory
@@ -108,6 +109,7 @@ class Game:
         self.created_at = self.save_system.current_time_iso()
         self.time_system = TimeSystem()
         self.current_day_phase = self.time_system.get_day_phase()
+        self.day_phase_preview_override: str | None = None
 
         self.selected_crop_id = CROP_STARBUBBLE_RADISH
         self.player = Player(coins=50)
@@ -118,7 +120,7 @@ class Game:
             }
         )
 
-        self.message = "Version 0.9: Day phase changes with real-world time."
+        self.message = "Version 1.0.2: Day phase backgrounds and scene tinting."
 
         self.plots = self.create_plots()
 
@@ -311,7 +313,7 @@ class Game:
             },
             "time": {
                 "use_real_world_time": True,
-                "current_day_phase": self.current_day_phase,
+                "current_day_phase": self.time_system.get_day_phase(),
                 "last_calculated_at": self.save_system.current_time_iso(),
             },
             "inventory": {
@@ -462,6 +464,21 @@ class Game:
                     self.save_game()
                     self.message = "Game saved."
 
+                elif ENABLE_DAY_PHASE_PREVIEW_KEYS and event.key == pygame.K_0:
+                    self.set_day_phase_preview(None)
+
+                elif ENABLE_DAY_PHASE_PREVIEW_KEYS and event.key == pygame.K_1:
+                    self.set_day_phase_preview("morning")
+
+                elif ENABLE_DAY_PHASE_PREVIEW_KEYS and event.key == pygame.K_2:
+                    self.set_day_phase_preview("daytime")
+
+                elif ENABLE_DAY_PHASE_PREVIEW_KEYS and event.key == pygame.K_3:
+                    self.set_day_phase_preview("evening")
+
+                elif ENABLE_DAY_PHASE_PREVIEW_KEYS and event.key == pygame.K_4:
+                    self.set_day_phase_preview("midnight")
+
     def handle_mouse_click(self, position: tuple[int, int]) -> None:
         """Handle left mouse click on farm plots."""
         
@@ -594,7 +611,10 @@ class Game:
 
     def update(self) -> None:
         """Update game state."""
-        self.current_day_phase = self.time_system.get_day_phase()
+        if self.day_phase_preview_override is None:
+            self.current_day_phase = self.time_system.get_day_phase()
+        else:
+            self.current_day_phase = self.day_phase_preview_override
 
         current_time = time.time()
 
@@ -624,6 +644,22 @@ class Game:
             return BACKGROUND_MIDNIGHT_COLOR
 
         return BACKGROUND_COLOR
+
+    def set_day_phase_preview(self, phase: str | None) -> None:
+        """Set or clear day phase preview override."""
+        self.day_phase_preview_override = phase
+
+        if phase is None:
+            self.current_day_phase = self.time_system.get_day_phase()
+            phase_label = self.time_system.get_day_phase_label(self.current_day_phase)
+            self.message = f"Preview disabled. Using real day phase: {phase_label}."
+            print(self.message)
+            return
+
+        self.current_day_phase = phase
+        phase_label = self.time_system.get_day_phase_label(phase)
+        self.message = f"Preview day phase: {phase_label}. Press 0 to return to real time."
+        print(self.message)
     
 
     def draw(self) -> None:
@@ -667,7 +703,10 @@ class Game:
 
         current_time_text = self.time_system.get_current_time_text()
         phase_label = self.time_system.get_day_phase_label(self.current_day_phase)
-        time_text = f"Time: {current_time_text} | Phase: {phase_label}"
+        if self.day_phase_preview_override is None:
+            time_text = f"Time: {current_time_text} | Phase: {phase_label}"
+        else:
+            time_text = f"Time: {current_time_text} | Phase: {phase_label} (Preview)"
         time_surface = self.font.render(time_text, True, TEXT_COLOR)
         self.screen.blit(time_surface, (560, 28))
 

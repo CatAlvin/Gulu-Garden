@@ -5,7 +5,7 @@ from pathlib import Path
 # =========================
 
 GAME_TITLE = "Gulu Garden - 咕噜小菜园"
-GAME_VERSION = "0.9.0"
+GAME_VERSION = "1.0.2"
 
 # =========================
 # Screen Settings
@@ -170,3 +170,15 @@ SCENE_TINT_SETTINGS = {
         "overlay": (35, 70, 140, 18),
     },
 }
+
+# =========================
+# Debug Settings
+# =========================
+
+# 开发调试用：允许用数字键临时预览不同昼夜阶段。
+# 0 = 恢复真实时间
+# 1 = morning
+# 2 = daytime
+# 3 = evening
+# 4 = midnight
+ENABLE_DAY_PHASE_PREVIEW_KEYS = True
