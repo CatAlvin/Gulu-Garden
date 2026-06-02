@@ -1,0 +1,38 @@
+{
+  "first_plant_starbubble_radish": {
+    "id": "first_plant_starbubble_radish",
+    "title_cn": "第一次播种",
+    "title_en": "First Planting",
+    "description_cn": "种下 1 个星泡萝卜。",
+    "event_type": "plant_crop",
+    "target_crop_id": "starbubble_radish",
+    "target_count": 1,
+    "reward": {
+      "coins": 10
+    }
+  },
+  "first_harvest_starbubble_radish": {
+    "id": "first_harvest_starbubble_radish",
+    "title_cn": "第一次收获",
+    "title_en": "First Harvest",
+    "description_cn": "收获 1 个星泡萝卜。",
+    "event_type": "harvest_crop",
+    "target_crop_id": "starbubble_radish",
+    "target_count": 1,
+    "reward": {
+      "coins": 20
+    }
+  },
+  "harvest_3_starbubble_radish": {
+    "id": "harvest_3_starbubble_radish",
+    "title_cn": "小菜园起步",
+    "title_en": "Garden Beginner",
+    "description_cn": "累计收获 3 个星泡萝卜。",
+    "event_type": "harvest_crop",
+    "target_crop_id": "starbubble_radish",
+    "target_count": 3,
+    "reward": {
+      "coins": 50
+    }
+  }
+}

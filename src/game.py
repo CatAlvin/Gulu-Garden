@@ -90,6 +90,7 @@ from models.plot import Plot
 
 from systems.save_system import SaveSystem
 from systems.shop_system import ShopSystem
+from systems.task_system import TaskSystem
 from systems.time_system import TimeSystem
 
 from ui.button import Button
@@ -152,6 +153,9 @@ class Game:
         self.shop_items = self.load_shop_items()
         self.shop_system = ShopSystem(self.shop_items)
 
+        self.task_data = self.load_task_data()
+        self.task_system = TaskSystem(self.task_data)
+
         self.save_system = SaveSystem(SAVES_DIR)
         self.save_path = SAVES_DIR / "save_1.json"
         self.created_at = self.save_system.current_time_iso()
@@ -168,7 +172,7 @@ class Game:
             }
         )
 
-        self.message = "Version 1.0.2: Day phase backgrounds and scene tinting."
+        self.message = "Version 1.1: Simple task system."
 
         self.plots = self.create_plots()
 
@@ -275,13 +279,31 @@ class Game:
                 plot_id += 1
 
         return plots
-    
+
     def load_shop_items(self) -> dict:
         """Load shop item data from data/shop_items.json."""
         shop_items_path = DATA_DIR / "shop_items.json"
+        if not shop_items_path.exists():
+            return {}
+        try:
+            with shop_items_path.open("r", encoding="utf-8") as file:
+                return json.load(file)
+        except json.JSONDecodeError:
+            return {}
+ 
+    def load_task_data(self) -> dict:
+        """Load task data from data/tasks.json."""
+        tasks_path = DATA_DIR / "tasks.json"
 
-        with shop_items_path.open("r", encoding="utf-8") as file:
-            return json.load(file)
+        if not tasks_path.exists():
+            return {}
+
+        try:
+            with tasks_path.open("r", encoding="utf-8") as file:
+                return json.load(file)
+        except json.JSONDecodeError:
+            return {}
+
         
     def load_crop_stage_images(self) -> dict[str, dict[int, pygame.Surface]]:
         """Load crop stage images for all configured crops."""
@@ -368,6 +390,7 @@ class Game:
                 "seeds": self.inventory.seeds,
             },
             "plots": plots_data,
+            "tasks": self.task_system.to_save_data(),
         }
         
     def save_game(self) -> None:
@@ -401,6 +424,8 @@ class Game:
         }
 
         self.restore_plots(save_data.get("plots", []))
+        
+        self.task_system.load_progress(save_data.get("tasks"))
 
         offline_messages = self.apply_offline_growth()
 
@@ -512,6 +537,9 @@ class Game:
                     self.save_game()
                     self.message = "Game saved."
 
+                elif event.key == pygame.K_t:
+                    self.print_task_summary()
+
                 elif ENABLE_DAY_PHASE_PREVIEW_KEYS and event.key == pygame.K_0:
                     self.set_day_phase_preview(None)
 
@@ -579,12 +607,22 @@ class Game:
         planted_at = time.time()
         plot.plant(self.selected_crop_id, planted_at)
 
+        task_messages = self.task_system.handle_event(
+            event_type="plant_crop",
+            crop_id=self.selected_crop_id,
+            player=self.player,
+        )
+
         seed_count = self.inventory.get_seed_count(self.selected_crop_id)
         self.message = (
             f"Plot {plot.plot_id}: planted {crop_name}. "
             f"Seeds left: {seed_count}"
         )
         print(self.message)
+
+        for task_message in task_messages:
+            self.message = task_message
+            print(task_message)
     
     def harvest_plot(self, plot: Plot) -> None:
         """Harvest a mature crop and add coins to the player."""
@@ -607,11 +645,22 @@ class Game:
 
         self.player.add_coins(sell_price)
 
+        task_messages = self.task_system.handle_event(
+            event_type="harvest_crop",
+            crop_id=harvested_crop_id,
+            player=self.player,
+        )
+
         self.message = (
             f"Harvested {crop_name} from Plot {plot.plot_id}. "
             f"+{sell_price} coins."
         )
         print(self.message)
+
+        for task_message in task_messages:
+            self.message = task_message
+            print(task_message)
+
         print(f"Current coins: {self.player.coins}")
 
     def buy_starbubble_seed(self) -> None:
@@ -627,6 +676,17 @@ class Game:
 
         seed_count = self.inventory.get_seed_count(CROP_STARBUBBLE_RADISH)
         print(f"Coins: {self.player.coins}, Starbubble Seeds: {seed_count}")
+
+    def print_task_summary(self) -> None:
+        """Print current task progress for Version 1.1 debugging."""
+        print("========== Task Progress ==========")
+
+        for line in self.task_system.get_task_summary_lines():
+            print(line)
+
+        print("===================================")
+
+        self.message = "Task progress printed in terminal."
     
     def get_crop_name(self, crop_id: str | None) -> str:
         """Get crop English name by crop id."""
