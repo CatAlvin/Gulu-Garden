@@ -88,6 +88,7 @@ from models.inventory import Inventory
 from models.player import Player
 from models.plot import Plot
 
+from systems.codex_system import CodexSystem
 from systems.save_system import SaveSystem
 from systems.shop_system import ShopSystem
 from systems.task_system import TaskSystem
@@ -155,6 +156,8 @@ class Game:
 
         self.task_data = self.load_task_data()
         self.task_system = TaskSystem(self.task_data)
+        
+        self.codex_system = CodexSystem(self.crop_data)
 
         self.save_system = SaveSystem(SAVES_DIR)
         self.save_path = SAVES_DIR / "save_1.json"
@@ -172,8 +175,10 @@ class Game:
             }
         )
 
-        self.message = "Version 1.1: Simple task system."
-
+        self.message = "Version 1.2: Basic codex system."
+        
+        self.show_codex_panel = False
+        
         self.plots = self.create_plots()
 
         self.shop_button = Button(
@@ -391,6 +396,7 @@ class Game:
             },
             "plots": plots_data,
             "tasks": self.task_system.to_save_data(),
+            "codex": self.codex_system.to_save_data(),
         }
         
     def save_game(self) -> None:
@@ -426,6 +432,8 @@ class Game:
         self.restore_plots(save_data.get("plots", []))
         
         self.task_system.load_progress(save_data.get("tasks"))
+        self.codex_system.load_progress(save_data.get("codex"))
+        self.sync_codex_from_existing_plots()
 
         offline_messages = self.apply_offline_growth()
 
@@ -437,6 +445,22 @@ class Game:
             self.message = "Loaded save_1.json."
 
         print(f"Game loaded from {self.save_path}")
+
+    def sync_codex_from_existing_plots(self) -> None:
+        """Sync codex planted records from currently loaded plots.
+
+        This is mainly for old saves created before Version 1.2.
+        If a crop already exists on a plot, the codex should know that
+        this crop has been planted before.
+        """
+        for plot in self.plots:
+            if plot.crop_id is None:
+                continue
+
+            codex_message = self.codex_system.record_planted(plot.crop_id)
+
+            if codex_message:
+                print(codex_message)
     
     def restore_plots(self, plots_data: list[dict]) -> None:
         """Restore plot states from save data."""
@@ -539,6 +563,14 @@ class Game:
 
                 elif event.key == pygame.K_t:
                     self.print_task_summary()
+                    
+                elif event.key == pygame.K_c:
+                    self.toggle_codex_panel()
+
+                elif event.key == pygame.K_ESCAPE:
+                    if self.show_codex_panel:
+                        self.show_codex_panel = False
+                        self.message = "Codex closed."
 
                 elif ENABLE_DAY_PHASE_PREVIEW_KEYS and event.key == pygame.K_0:
                     self.set_day_phase_preview(None)
@@ -612,6 +644,7 @@ class Game:
             crop_id=self.selected_crop_id,
             player=self.player,
         )
+        codex_message = self.codex_system.record_planted(self.selected_crop_id)
 
         seed_count = self.inventory.get_seed_count(self.selected_crop_id)
         self.message = (
@@ -623,6 +656,10 @@ class Game:
         for task_message in task_messages:
             self.message = task_message
             print(task_message)
+        
+        if codex_message:
+            self.message = codex_message
+            print(codex_message)
     
     def harvest_plot(self, plot: Plot) -> None:
         """Harvest a mature crop and add coins to the player."""
@@ -650,6 +687,8 @@ class Game:
             crop_id=harvested_crop_id,
             player=self.player,
         )
+        
+        codex_message = self.codex_system.record_harvested(harvested_crop_id)
 
         self.message = (
             f"Harvested {crop_name} from Plot {plot.plot_id}. "
@@ -660,6 +699,10 @@ class Game:
         for task_message in task_messages:
             self.message = task_message
             print(task_message)
+
+        if codex_message:
+            self.message = codex_message
+            print(codex_message)
 
         print(f"Current coins: {self.player.coins}")
 
@@ -687,6 +730,23 @@ class Game:
         print("===================================")
 
         self.message = "Task progress printed in terminal."
+    
+    def print_codex_entry(self) -> None:
+        """Print Starbubble Radish codex entry for Version 1.2 debugging."""
+        for line in self.codex_system.get_codex_lines(CROP_STARBUBBLE_RADISH):
+            print(line)
+
+        self.message = "Codex entry printed in terminal."
+        
+    def toggle_codex_panel(self) -> None:
+        """Toggle the simple codex panel."""
+        self.show_codex_panel = not self.show_codex_panel
+
+        if self.show_codex_panel:
+            self.print_codex_entry()
+            self.message = "Codex opened. Press C or Esc to close."
+        else:
+            self.message = "Codex closed."
     
     def get_crop_name(self, crop_id: str | None) -> str:
         """Get crop English name by crop id."""
@@ -773,13 +833,14 @@ class Game:
     def draw(self) -> None:
         """Draw everything on the screen."""
         self.draw_background()
-
         self.draw_hud_panel()
         self.draw_hud()
         self.draw_message()
-
         self.draw_plots()
         self.draw_buttons()
+
+        if self.show_codex_panel:
+            self.draw_codex_panel()
 
         pygame.display.flip()
     
@@ -894,6 +955,94 @@ class Game:
 
         time_surface = self.font.render(time_text, True, TEXT_COLOR)
         self.screen.blit(time_surface, (HUD_TIME_TEXT_X, HUD_TIME_TEXT_Y))
+
+    def wrap_text_by_width(
+        self,
+        text: str,
+        font: pygame.font.Font,
+        max_width: int,
+    ) -> list[str]:
+        """Wrap text by rendered pixel width.
+
+        This character-based wrapping works better for Chinese text.
+        """
+        lines = []
+        current_line = ""
+
+        for char in text:
+            test_line = current_line + char
+
+            if font.size(test_line)[0] <= max_width:
+                current_line = test_line
+            else:
+                if current_line:
+                    lines.append(current_line)
+                current_line = char
+
+        if current_line:
+            lines.append(current_line)
+
+        return lines
+
+    def draw_codex_panel(self) -> None:
+        """Draw a simple in-game codex panel."""
+        panel_width = 760
+        panel_height = 430
+        panel_x = (SCREEN_WIDTH - panel_width) // 2
+        panel_y = (SCREEN_HEIGHT - panel_height) // 2
+
+        panel_surface = pygame.Surface((panel_width, panel_height), pygame.SRCALPHA)
+        panel_surface.fill((255, 248, 220, 225))
+
+        panel_rect = panel_surface.get_rect(topleft=(panel_x, panel_y))
+        pygame.draw.rect(
+            panel_surface,
+            (255, 248, 220, 225),
+            panel_surface.get_rect(),
+            border_radius=24,
+        )
+        pygame.draw.rect(
+            panel_surface,
+            (130, 96, 55, 255),
+            panel_surface.get_rect(),
+            width=4,
+            border_radius=24,
+        )
+
+        self.screen.blit(panel_surface, panel_rect)
+
+        title_font = pygame.font.SysFont("Microsoft YaHei", 30, bold=True)
+        body_font = pygame.font.SysFont("Microsoft YaHei", 22)
+
+        title_surface = title_font.render("图鉴 Codex", True, TEXT_COLOR)
+        self.screen.blit(title_surface, (panel_x + 32, panel_y + 24))
+
+        hint_surface = body_font.render("Press C or Esc to close", True, TEXT_COLOR)
+        self.screen.blit(hint_surface, (panel_x + panel_width - 270, panel_y + 32))
+
+        codex_lines = self.codex_system.get_codex_lines(CROP_STARBUBBLE_RADISH)
+
+        text_x = panel_x + 36
+        text_y = panel_y + 82
+        max_text_width = panel_width - 72
+        line_height = 30
+
+        for line in codex_lines:
+            if line.startswith("="):
+                continue
+
+            wrapped_lines = self.wrap_text_by_width(
+                text=line,
+                font=body_font,
+                max_width=max_text_width,
+            )
+
+            for wrapped_line in wrapped_lines:
+                text_surface = body_font.render(wrapped_line, True, TEXT_COLOR)
+                self.screen.blit(text_surface, (text_x, text_y))
+                text_y += line_height
+
+            text_y += 6
 
     def draw_message(self) -> None:
         """Draw current status message."""
