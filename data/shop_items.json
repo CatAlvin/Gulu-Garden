@@ -7,5 +7,23 @@
     "crop_id": "starbubble_radish",
     "price": 10,
     "amount": 1
+  },
+  "cloud_sugar_pumpkin_seed": {
+    "id": "cloud_sugar_pumpkin_seed",
+    "name_cn": "云糖南瓜种子",
+    "name_en": "Cloud Sugar Pumpkin Seed",
+    "item_type": "seed",
+    "crop_id": "cloud_sugar_pumpkin",
+    "price": 18,
+    "amount": 1
+  },
+  "moondew_mushroom_seed": {
+    "id": "moondew_mushroom_seed",
+    "name_cn": "月露蘑菇种子",
+    "name_en": "Moondew Mushroom Seed",
+    "item_type": "seed",
+    "crop_id": "moondew_mushroom",
+    "price": 30,
+    "amount": 1
   }
 }

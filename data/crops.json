@@ -31,5 +31,71 @@
     ],
     "need_water": true,
     "can_wither": false
+  },
+  "cloud_sugar_pumpkin": {
+    "id": "cloud_sugar_pumpkin",
+    "name_cn": "云糖南瓜",
+    "name_en": "Cloud Sugar Pumpkin",
+    "description": "云糖南瓜是一种柔软香甜的奇幻南瓜，成熟时果皮会像云朵糖霜一样鼓起。它比星泡萝卜成长更慢，但收获收益也更高，是玩家进入进阶种植前的稳定选择。",
+    "seed_price": 18,
+    "sell_price": 42,
+    "growth_time_seconds": 50,
+    "growth_stages": [
+      {
+        "stage": 0,
+        "name": "seed",
+        "label_cn": "种子"
+      },
+      {
+        "stage": 1,
+        "name": "sprout",
+        "label_cn": "幼苗"
+      },
+      {
+        "stage": 2,
+        "name": "growing",
+        "label_cn": "生长期"
+      },
+      {
+        "stage": 3,
+        "name": "mature",
+        "label_cn": "成熟"
+      }
+    ],
+    "need_water": true,
+    "can_wither": false
+  },
+  "moondew_mushroom": {
+    "id": "moondew_mushroom",
+    "name_cn": "月露蘑菇",
+    "name_en": "Moondew Mushroom",
+    "description": "月露蘑菇是一种喜欢安静夜色的奇幻蘑菇。它的菌盖会在深夜凝结出像月光一样的露珠。当前版本只作为高阶作物加入，后续版本再让它与午夜阶段产生特殊互动。",
+    "seed_price": 30,
+    "sell_price": 75,
+    "growth_time_seconds": 80,
+    "growth_stages": [
+      {
+        "stage": 0,
+        "name": "seed",
+        "label_cn": "种子"
+      },
+      {
+        "stage": 1,
+        "name": "sprout",
+        "label_cn": "幼苗"
+      },
+      {
+        "stage": 2,
+        "name": "growing",
+        "label_cn": "生长期"
+      },
+      {
+        "stage": 3,
+        "name": "mature",
+        "label_cn": "成熟"
+      }
+    ],
+    "need_water": true,
+    "can_wither": false
   }
 }

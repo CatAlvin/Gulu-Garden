@@ -8,6 +8,14 @@ PLOT_MATURE = "mature"
 
 # Crop ids
 CROP_STARBUBBLE_RADISH = "starbubble_radish"
+CROP_CLOUD_SUGAR_PUMPKIN = "cloud_sugar_pumpkin"
+CROP_MOONDEW_MUSHROOM = "moondew_mushroom"
+
+CROP_IDS = [
+    CROP_STARBUBBLE_RADISH,
+    CROP_CLOUD_SUGAR_PUMPKIN,
+    CROP_MOONDEW_MUSHROOM,
+]
 
 # Crop stages
 CROP_STAGE_SEED = 0

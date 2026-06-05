@@ -82,6 +82,7 @@ from config import (
     HUD_PANEL_SHADOW_COLOR,
     HUD_PANEL_SHADOW_OFFSET_X,
     HUD_PANEL_SHADOW_OFFSET_Y,
+    HUD_SEED_TEXT_MAX_WIDTH,
 )
 
 from models.inventory import Inventory
@@ -97,7 +98,10 @@ from systems.time_system import TimeSystem
 from ui.button import Button
 
 from utils.constants import (
+    CROP_IDS,
     CROP_STARBUBBLE_RADISH,
+    CROP_CLOUD_SUGAR_PUMPKIN,
+    CROP_MOONDEW_MUSHROOM,
     PLOT_EMPTY,
     PLOT_LOCKED,
     PLOT_PLANTED,
@@ -171,7 +175,8 @@ class Game:
 
         self.inventory = Inventory(
             seeds={
-                CROP_STARBUBBLE_RADISH: 0,
+                crop_id: 0
+                for crop_id in CROP_IDS
             }
         )
 
@@ -186,10 +191,18 @@ class Game:
             y=SHOP_BUTTON_Y,
             width=SHOP_BUTTON_WIDTH,
             height=SHOP_BUTTON_HEIGHT,
-            text="Shop: Buy Seed",
+            text="买星泡萝卜种子",
         )
 
+        self.select_crop(self.selected_crop_id)
+
         self.load_existing_save()
+
+    def ensure_inventory_seed_keys(self) -> None:
+        """Ensure inventory has seed entries for all configured crop ids."""
+        for crop_id in CROP_IDS:
+            if crop_id not in self.inventory.seeds:
+                self.inventory.seeds[crop_id] = 0
     
     def load_crop_data(self) -> dict:
         """Load crop data from data/crops.json."""
@@ -428,7 +441,8 @@ class Game:
             str(crop_id): int(count)
             for crop_id, count in seeds_data.items()
         }
-
+        self.ensure_inventory_seed_keys()
+        
         self.restore_plots(save_data.get("plots", []))
         
         self.task_system.load_progress(save_data.get("tasks"))
@@ -555,7 +569,7 @@ class Game:
 
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_b:
-                    self.buy_starbubble_seed()
+                    self.buy_selected_seed()
 
                 elif event.key == pygame.K_s:
                     self.save_game()
@@ -571,6 +585,15 @@ class Game:
                     if self.show_codex_panel:
                         self.show_codex_panel = False
                         self.message = "Codex closed."
+                
+                elif event.key == pygame.K_q:
+                    self.select_crop(CROP_STARBUBBLE_RADISH)
+
+                elif event.key == pygame.K_w:
+                    self.select_crop(CROP_CLOUD_SUGAR_PUMPKIN)
+
+                elif event.key == pygame.K_e:
+                    self.select_crop(CROP_MOONDEW_MUSHROOM)
 
                 elif ENABLE_DAY_PHASE_PREVIEW_KEYS and event.key == pygame.K_0:
                     self.set_day_phase_preview(None)
@@ -592,7 +615,7 @@ class Game:
         
         # handle shop button click
         if self.shop_button.is_clicked(position):
-            self.buy_starbubble_seed()
+            self.buy_selected_seed()
             return
         
         # handle farm plot clicks
@@ -706,10 +729,18 @@ class Game:
 
         print(f"Current coins: {self.player.coins}")
 
-    def buy_starbubble_seed(self) -> None:
-        """Buy one Starbubble Radish seed from the temporary shop."""
+    def buy_selected_seed(self) -> None:
+        """Buy one seed for the currently selected crop."""
+        item_id = self.get_seed_item_id_by_crop_id(self.selected_crop_id)
+
+        if item_id is None:
+            crop_name = self.get_crop_name(self.selected_crop_id)
+            self.message = f"No shop item found for {crop_name}."
+            print(self.message)
+            return
+
         success, message = self.shop_system.buy_seed(
-            item_id="starbubble_radish_seed",
+            item_id=item_id,
             player=self.player,
             inventory=self.inventory,
         )
@@ -717,8 +748,30 @@ class Game:
         self.message = message
         print(message)
 
-        seed_count = self.inventory.get_seed_count(CROP_STARBUBBLE_RADISH)
-        print(f"Coins: {self.player.coins}, Starbubble Seeds: {seed_count}")
+        seed_count = self.inventory.get_seed_count(self.selected_crop_id)
+        crop_name = self.get_crop_name(self.selected_crop_id)
+
+        print(
+            f"Coins: {self.player.coins}, "
+            f"{crop_name} Seeds: {seed_count}"
+        )
+
+    def select_crop(self, crop_id: str) -> None:
+        """Select a crop for planting and buying seeds."""
+        if crop_id not in self.crop_data:
+            self.message = f"Crop not found: {crop_id}"
+            print(self.message)
+            return
+
+        self.selected_crop_id = crop_id
+
+        crop_name_cn = self.get_crop_name_cn(crop_id)
+        seed_count = self.inventory.get_seed_count(crop_id)
+
+        self.shop_button.text = f"买{crop_name_cn}种子"
+
+        self.message = f"Selected {crop_name_cn}. Seeds: {seed_count}"
+        print(self.message)
 
     def print_task_summary(self) -> None:
         """Print current task progress for Version 1.1 debugging."""
@@ -732,11 +785,12 @@ class Game:
         self.message = "Task progress printed in terminal."
     
     def print_codex_entry(self) -> None:
-        """Print Starbubble Radish codex entry for Version 1.2 debugging."""
-        for line in self.codex_system.get_codex_lines(CROP_STARBUBBLE_RADISH):
+        """Print selected crop codex entry for debugging."""
+        for line in self.codex_system.get_codex_lines(self.selected_crop_id):
             print(line)
 
-        self.message = "Codex entry printed in terminal."
+        crop_name = self.get_crop_name(self.selected_crop_id)
+        self.message = f"Codex entry printed: {crop_name}"
         
     def toggle_codex_panel(self) -> None:
         """Toggle the simple codex panel."""
@@ -759,6 +813,18 @@ class Game:
             return crop_id
 
         return crop["name_en"]
+
+    def get_crop_name_cn(self, crop_id: str | None) -> str:
+        """Get crop Chinese name by crop id."""
+        if crop_id is None:
+            return "未知作物"
+
+        crop = self.crop_data.get(crop_id)
+
+        if crop is None:
+            return crop_id
+
+        return crop.get("name_cn", crop.get("name_en", crop_id))
     
     def get_crop_stage_label(self, plot: Plot) -> str:
         """Get current crop stage label."""
@@ -776,6 +842,33 @@ class Game:
                 return stage_data["name"]
 
         return "Unknown"
+    
+    def get_seed_item_id_by_crop_id(self, crop_id: str) -> str | None:
+        """Find seed shop item id by crop id."""
+        for item_id, item in self.shop_items.items():
+            if item.get("item_type") != "seed":
+                continue
+
+            if item.get("crop_id") == crop_id:
+                return item_id
+
+        return None
+
+    def get_background_color(self) -> tuple[int, int, int]:
+        """Return background color for current day phase."""
+        if self.current_day_phase == "morning":
+            return BACKGROUND_MORNING_COLOR
+
+        if self.current_day_phase == "daytime":
+            return BACKGROUND_DAYTIME_COLOR
+
+        if self.current_day_phase == "evening":
+            return BACKGROUND_EVENING_COLOR
+
+        if self.current_day_phase == "midnight":
+            return BACKGROUND_MIDNIGHT_COLOR
+
+        return BACKGROUND_COLOR
 
     def update(self) -> None:
         """Update game state."""
@@ -796,22 +889,6 @@ class Game:
 
             growth_time_seconds = crop["growth_time_seconds"]
             plot.update_growth(current_time, growth_time_seconds)
-
-    def get_background_color(self) -> tuple[int, int, int]:
-        """Return background color for current day phase."""
-        if self.current_day_phase == "morning":
-            return BACKGROUND_MORNING_COLOR
-
-        if self.current_day_phase == "daytime":
-            return BACKGROUND_DAYTIME_COLOR
-
-        if self.current_day_phase == "evening":
-            return BACKGROUND_EVENING_COLOR
-
-        if self.current_day_phase == "midnight":
-            return BACKGROUND_MIDNIGHT_COLOR
-
-        return BACKGROUND_COLOR
 
     def set_day_phase_preview(self, phase: str | None) -> None:
         """Set or clear day phase preview override."""
@@ -933,7 +1010,8 @@ class Game:
         coin_surface = self.font.render(coin_text, True, TEXT_COLOR)
         self.screen.blit(coin_surface, (HUD_COIN_TEXT_X, HUD_COIN_TEXT_Y))
 
-        seed_count = self.inventory.get_seed_count(CROP_STARBUBBLE_RADISH)
+        selected_crop_name = self.get_crop_name_cn(self.selected_crop_id)
+        selected_seed_count = self.inventory.get_seed_count(self.selected_crop_id)
 
         if self.seed_icon_image is not None:
             self.screen.blit(
@@ -941,7 +1019,13 @@ class Game:
                 (HUD_SEED_ICON_X, HUD_SEED_ICON_Y),
             )
 
-        seed_text = f"{seed_count}"
+        seed_text = f"{selected_crop_name}种子: {selected_seed_count}"
+        seed_text = self.fit_text_to_width(
+            text=seed_text,
+            font=self.font,
+            max_width=HUD_SEED_TEXT_MAX_WIDTH,
+        )
+        seed_surface = self.font.render(seed_text, True, TEXT_COLOR)
         seed_surface = self.font.render(seed_text, True, TEXT_COLOR)
         self.screen.blit(seed_surface, (HUD_SEED_TEXT_X, HUD_SEED_TEXT_Y))
 
@@ -949,12 +1033,35 @@ class Game:
         phase_label = self.time_system.get_day_phase_label(self.current_day_phase)
 
         if self.day_phase_preview_override is None:
-            time_text = f"Time: {current_time_text} | Phase: {phase_label}"
+            time_text = f"{current_time_text} | {phase_label}"
         else:
-            time_text = f"Time: {current_time_text} | Phase: {phase_label} (Preview)"
+            time_text = f"{current_time_text} | {phase_label} (Preview)"
 
         time_surface = self.font.render(time_text, True, TEXT_COLOR)
         self.screen.blit(time_surface, (HUD_TIME_TEXT_X, HUD_TIME_TEXT_Y))
+
+    def fit_text_to_width(
+        self,
+        text: str,
+        font: pygame.font.Font,
+        max_width: int,
+    ) -> str:
+        """Shorten text so it does not exceed max rendered width."""
+        if font.size(text)[0] <= max_width:
+            return text
+
+        ellipsis = "..."
+        result = ""
+
+        for char in text:
+            test_text = result + char + ellipsis
+
+            if font.size(test_text)[0] > max_width:
+                break
+
+            result += char
+
+        return result + ellipsis
 
     def wrap_text_by_width(
         self,
@@ -1014,13 +1121,23 @@ class Game:
         title_font = pygame.font.SysFont("Microsoft YaHei", 30, bold=True)
         body_font = pygame.font.SysFont("Microsoft YaHei", 22)
 
-        title_surface = title_font.render("图鉴 Codex", True, TEXT_COLOR)
+        selected_crop = self.crop_data.get(self.selected_crop_id, {})
+        selected_crop_name = selected_crop.get(
+            "name_cn",
+            self.get_crop_name(self.selected_crop_id),
+        )
+
+        title_surface = title_font.render(
+            f"图鉴 Codex - {selected_crop_name}",
+            True,
+            TEXT_COLOR,
+        )
         self.screen.blit(title_surface, (panel_x + 32, panel_y + 24))
 
         hint_surface = body_font.render("Press C or Esc to close", True, TEXT_COLOR)
         self.screen.blit(hint_surface, (panel_x + panel_width - 270, panel_y + 32))
 
-        codex_lines = self.codex_system.get_codex_lines(CROP_STARBUBBLE_RADISH)
+        codex_lines = self.codex_system.get_codex_lines(self.selected_crop_id)
 
         text_x = panel_x + 36
         text_y = panel_y + 82

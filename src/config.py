@@ -157,6 +157,8 @@ HUD_SEED_TEXT_Y = 26
 HUD_TIME_TEXT_X = 560
 HUD_TIME_TEXT_Y = 26
 
+HUD_SEED_TEXT_MAX_WIDTH = HUD_TIME_TEXT_X - HUD_SEED_TEXT_X - 24
+
 # =========================
 # HUD Panel Settings
 # =========================
