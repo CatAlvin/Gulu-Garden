@@ -580,6 +580,9 @@ class Game:
                     
                 elif event.key == pygame.K_c:
                     self.toggle_codex_panel()
+                
+                elif event.key == pygame.K_i:
+                    self.print_inventory_summary()
 
                 elif event.key == pygame.K_ESCAPE:
                     if self.show_codex_panel:
@@ -783,6 +786,19 @@ class Game:
         print("===================================")
 
         self.message = "Task progress printed in terminal."
+
+    def print_inventory_summary(self) -> None:
+        """Print current seed inventory for Version 1.3 debugging."""
+        print("========== Seed Inventory ==========")
+
+        for crop_id in CROP_IDS:
+            crop_name_cn = self.get_crop_name_cn(crop_id)
+            seed_count = self.inventory.get_seed_count(crop_id)
+            print(f"{crop_name_cn}种子: {seed_count}")
+
+        print("====================================")
+
+        self.message = "Seed inventory printed in terminal."
     
     def print_codex_entry(self) -> None:
         """Print selected crop codex entry for debugging."""
@@ -825,6 +841,53 @@ class Game:
             return crop_id
 
         return crop.get("name_cn", crop.get("name_en", crop_id))
+
+    def get_crop_short_label(self, crop_id: str | None) -> str:
+        """Return a short Chinese label for fallback crop display."""
+        if crop_id is None:
+            return "?"
+
+        crop_short_labels = {
+            CROP_STARBUBBLE_RADISH: "萝",
+            CROP_CLOUD_SUGAR_PUMPKIN: "瓜",
+            CROP_MOONDEW_MUSHROOM: "菇",
+        }
+
+        if crop_id in crop_short_labels:
+            return crop_short_labels[crop_id]
+
+        crop_name_cn = self.get_crop_name_cn(crop_id)
+
+        if crop_name_cn:
+            return crop_name_cn[0]
+
+        return "?"
+
+    def get_plot_stage_letter(self, plot: Plot) -> str:
+        """Return a short stage letter for fallback plot display."""
+        if plot.status == PLOT_PLANTED:
+            return "P"
+
+        if plot.status == PLOT_GROWING:
+            return "G"
+
+        if plot.status == PLOT_MATURE:
+            return "M"
+
+        return ""
+
+    def get_plot_fallback_text(self, plot: Plot) -> str:
+        """Return fallback text when crop image is missing."""
+        if plot.crop_id is None:
+            return str(plot.plot_id)
+
+        crop_label = self.get_crop_short_label(plot.crop_id)
+        stage_letter = self.get_plot_stage_letter(plot)
+
+        if stage_letter:
+            return f"{crop_label}{stage_letter}"
+
+        return crop_label
     
     def get_crop_stage_label(self, plot: Plot) -> str:
         """Get current crop stage label."""
@@ -1221,13 +1284,13 @@ class Game:
                 continue
 
             if plot.status == PLOT_PLANTED:
-                label_text = "P"
+                label_text = self.get_plot_fallback_text(plot)
                 label_color = PLOT_PLANTED_TEXT_COLOR
             elif plot.status == PLOT_GROWING:
-                label_text = "G"
+                label_text = self.get_plot_fallback_text(plot)
                 label_color = PLOT_GROWING_TEXT_COLOR
             elif plot.status == PLOT_MATURE:
-                label_text = "M"
+                label_text = self.get_plot_fallback_text(plot)
                 label_color = PLOT_MATURE_TEXT_COLOR
             else:
                 label_text = str(plot.plot_id)

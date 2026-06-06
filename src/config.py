@@ -54,6 +54,8 @@ PLOT_LOCKED_IMAGE = TILES_DIR / "plot_locked.png"
 # =========================
 
 STARBUBBLE_RADISH_IMAGE_DIR = CROPS_DIR / "starbubble_radish"
+CLOUD_SUGAR_PUMPKIN_IMAGE_DIR = CROPS_DIR / "cloud_sugar_pumpkin"
+MOONDEW_MUSHROOM_IMAGE_DIR = CROPS_DIR / "moondew_mushroom"
 
 CROP_STAGE_IMAGE_PATHS = {
     "starbubble_radish": {
@@ -61,7 +63,19 @@ CROP_STAGE_IMAGE_PATHS = {
         1: STARBUBBLE_RADISH_IMAGE_DIR / "stage_1_sprout.png",
         2: STARBUBBLE_RADISH_IMAGE_DIR / "stage_2_growing.png",
         3: STARBUBBLE_RADISH_IMAGE_DIR / "stage_3_mature.png",
-    }
+    },
+    "cloud_sugar_pumpkin": {
+        0: CLOUD_SUGAR_PUMPKIN_IMAGE_DIR / "stage_0_seed.png",
+        1: CLOUD_SUGAR_PUMPKIN_IMAGE_DIR / "stage_1_sprout.png",
+        2: CLOUD_SUGAR_PUMPKIN_IMAGE_DIR / "stage_2_growing.png",
+        3: CLOUD_SUGAR_PUMPKIN_IMAGE_DIR / "stage_3_mature.png",
+    },
+    "moondew_mushroom": {
+        0: MOONDEW_MUSHROOM_IMAGE_DIR / "stage_0_seed.png",
+        1: MOONDEW_MUSHROOM_IMAGE_DIR / "stage_1_sprout.png",
+        2: MOONDEW_MUSHROOM_IMAGE_DIR / "stage_2_growing.png",
+        3: MOONDEW_MUSHROOM_IMAGE_DIR / "stage_3_mature.png",
+    },
 }
 
 # =========================
