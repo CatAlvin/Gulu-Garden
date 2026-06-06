@@ -441,3 +441,206 @@ src/utils/image_tint.py
 或扩展：
 src/utils/asset_loader.py
 ```
+
+
+## 云糖南瓜：Cloud Sugar Pumpkin
+
+### 云糖南瓜种子阶段：stage_0_seed.png
+
+保存路径：
+
+```text
+assets/images/crops/cloud_sugar_pumpkin/stage_0_seed.png
+```
+
+图片要求：
+
+* 尺寸：512 × 512
+* 背景：纯绿色背景，后期抠图
+* 用途：作物 stage 0
+* 形象：小小的糖果感南瓜种子
+* 颜色：奶油白、浅橙、淡黄
+* 不带文字
+
+英文提示词：
+
+```text
+A cute fantasy crop growth stage asset, Cloud Sugar Pumpkin seed stage, stage 0, 512x512, solid pure chroma key green background, background color must be exactly RGB(0,255,0) / HEX #00FF00, not transparent, no checkerboard pattern, no fake transparency, high-resolution cute cartoon style, tiny magical pumpkin seed, soft creamy white, pastel orange, and pale yellow colors, small cloud-sugar swirl pattern printed on the seed body, glossy but not glowing, centered object, the object must be centered both horizontally and vertically, object should occupy about 30% to 40% of the canvas height, clean outer silhouette, crisp cutout edge, no glow, no aura, no bloom, no light halo, no floating sparkles, no external shadow, no soil base, no ground, no platform, cozy farming game asset, no text, no watermark, not pixel art, not realistic
+```
+
+---
+
+### 云糖南瓜幼苗阶段：stage_1_sprout.png
+
+保存路径：
+
+```text
+assets/images/crops/cloud_sugar_pumpkin/stage_1_sprout.png
+```
+
+图片要求：
+
+* 尺寸：512 × 512
+* 背景：纯绿色背景，后期抠图
+* 用途：作物 stage 1
+* 形象：小南瓜芽，两片叶子，底部有淡淡糖霜种壳
+* 颜色：奶油白、浅橙、柔和薄荷绿
+* 不带文字
+
+英文提示词：
+
+```text
+A cute fantasy crop growth stage asset, Cloud Sugar Pumpkin sprout stage, stage 1, 512x512, solid pure chroma key green background, background color must be exactly RGB(0,255,0) / HEX #00FF00, not transparent, no checkerboard pattern, no fake transparency, high-resolution cute cartoon style, small pumpkin sprout with two soft rounded leaves, leaf color should be soft muted mint green and must not match the pure green background, tiny creamy orange seed shell at the base, small flat cloud-shaped sugar mark on the seed shell, centered object, the object must be centered both horizontally and vertically, object should occupy about 40% to 50% of the canvas height, clean outer silhouette, crisp cutout edge, no glow, no aura, no bloom, no light halo, no floating sparkles, no external shadow, no soil base, no ground, no platform, cozy whimsical farming game asset, no text, no watermark, not pixel art, not realistic
+```
+
+---
+
+### 云糖南瓜生长期：stage_2_growing.png
+
+保存路径：
+
+```text
+assets/images/crops/cloud_sugar_pumpkin/stage_2_growing.png
+```
+
+图片要求：
+
+* 尺寸：512 × 512
+* 背景：纯绿色背景，后期抠图
+* 用途：作物 stage 2
+* 形象：小南瓜主体开始长大，云朵糖霜纹理初步出现
+* 颜色：浅橙、奶油白、淡黄、柔和薄荷绿
+* 不带文字
+
+英文提示词：
+
+```text
+A cute fantasy crop growth stage asset, Cloud Sugar Pumpkin growing stage, stage 2, 512x512, solid pure chroma key green background, background color must be exactly RGB(0,255,0) / HEX #00FF00, not transparent, no checkerboard pattern, no fake transparency, high-resolution cute cartoon style, small chubby pumpkin body starting to form, pastel orange and creamy white colors, soft puffy cloud-sugar ridges on the pumpkin surface, larger soft rounded leaves, leaf color should be soft muted mint green and must not match the pure green background, a few small solid cloud-sugar ornaments around the pumpkin, the ornaments must be flat decorative shapes, not glowing particles, centered object, the object must be centered both horizontally and vertically, object should occupy about 55% to 65% of the canvas height, clean outer silhouette, crisp cutout edge, no glow, no aura, no bloom, no light halo, no sparkle effects, no external shadow, no soil base, no ground, no platform, cozy whimsical farming game asset, no text, no watermark, not pixel art, not realistic
+```
+
+---
+
+### 云糖南瓜成熟阶段：stage_3_mature.png
+
+保存路径：
+
+```text
+assets/images/crops/cloud_sugar_pumpkin/stage_3_mature.png
+```
+
+图片要求：
+
+* 尺寸：512 × 512
+* 背景：纯绿色背景，后期抠图
+* 用途：作物 stage 3
+* 形象：圆滚滚成熟南瓜，果皮像云朵糖霜一样鼓起
+* 颜色：奶油白、浅橙、淡黄、柔和薄荷绿
+* 不带文字
+
+英文提示词：
+
+```text
+A cute fantasy crop growth stage asset, fully mature Cloud Sugar Pumpkin, stage 3, 512x512, solid pure chroma key green background, background color must be exactly RGB(0,255,0) / HEX #00FF00, not transparent, no checkerboard pattern, no fake transparency, high-resolution cute cartoon style, round chubby harvestable pumpkin body, pastel orange, pale yellow, and creamy white colors, puffy cloud-like sugar frosting ridges on the pumpkin skin, soft rounded leaves on top, leaf color should be soft muted mint green and must not match the pure green background, several small solid cloud-sugar ornaments around the pumpkin, the ornaments must look like cute decorative flat shapes, not glowing effects, clearly harvestable, centered object, the object must be centered both horizontally and vertically, object should occupy about 70% to 80% of the canvas height, clean outer silhouette, crisp cutout edge, no glow, no aura, no bloom, no light halo, no sparkle effects, no external shadow, no soil base, no ground, no platform, adorable cozy farming game asset, no text, no watermark, not pixel art, not realistic
+```
+
+---
+
+## 月露蘑菇：Moondew Mushroom
+
+### 月露蘑菇种子阶段：stage_0_seed.png
+
+保存路径：
+
+```text
+assets/images/crops/moondew_mushroom/stage_0_seed.png
+```
+
+图片要求：
+
+* 尺寸：512 × 512
+* 背景：纯绿色背景，后期抠图
+* 用途：作物 stage 0
+* 形象：小小月露孢子，不要发光
+* 颜色：月白、淡蓝、淡紫
+* 不带文字
+
+英文提示词：
+
+```text
+A cute fantasy crop growth stage asset, Moondew Mushroom spore stage, stage 0, 512x512, solid pure chroma key green background, background color must be exactly RGB(0,255,0) / HEX #00FF00, not transparent, no checkerboard pattern, no fake transparency, high-resolution cute cartoon style, tiny magical mushroom spore, soft moon-white, pale blue, and lavender colors, small crescent moon pattern printed on the spore body, tiny painted dew-drop marks, glossy but not glowing, centered object, the object must be centered both horizontally and vertically, object should occupy about 30% to 40% of the canvas height, clean outer silhouette, crisp cutout edge, no glow, no aura, no bloom, no light halo, no floating sparkles, no external shadow, no soil base, no ground, no platform, cozy farming game asset, no text, no watermark, not pixel art, not realistic
+```
+
+---
+
+### 月露蘑菇幼苗阶段：stage_1_sprout.png
+
+保存路径：
+
+```text
+assets/images/crops/moondew_mushroom/stage_1_sprout.png
+```
+
+图片要求：
+
+* 尺寸：512 × 512
+* 背景：纯绿色背景，后期抠图
+* 用途：作物 stage 1
+* 形象：小蘑菇芽，菌盖刚冒出
+* 颜色：月白、淡蓝、淡紫、灰蓝
+* 不带文字
+
+英文提示词：
+
+```text
+A cute fantasy crop growth stage asset, Moondew Mushroom sprout stage, stage 1, 512x512, solid pure chroma key green background, background color must be exactly RGB(0,255,0) / HEX #00FF00, not transparent, no checkerboard pattern, no fake transparency, high-resolution cute cartoon style, tiny young mushroom sprout, small rounded mushroom cap just beginning to form, soft moon-white stem, pale blue and lavender cap, small flat crescent moon mark on the cap, tiny painted dew-drop marks on the cap surface, centered object, the object must be centered both horizontally and vertically, object should occupy about 40% to 50% of the canvas height, clean outer silhouette, crisp cutout edge, no glow, no aura, no bloom, no light halo, no floating sparkles, no external shadow, no soil base, no ground, no platform, cozy whimsical farming game asset, no text, no watermark, not pixel art, not realistic
+```
+
+---
+
+### 月露蘑菇生长期：stage_2_growing.png
+
+保存路径：
+
+```text
+assets/images/crops/moondew_mushroom/stage_2_growing.png
+```
+
+图片要求：
+
+* 尺寸：512 × 512
+* 背景：纯绿色背景，后期抠图
+* 用途：作物 stage 2
+* 形象：蘑菇长高，菌盖变大，有月露纹样
+* 颜色：月白、淡蓝、淡紫、灰蓝
+* 不带文字
+
+英文提示词：
+
+```text
+A cute fantasy crop growth stage asset, Moondew Mushroom growing stage, stage 2, 512x512, solid pure chroma key green background, background color must be exactly RGB(0,255,0) / HEX #00FF00, not transparent, no checkerboard pattern, no fake transparency, high-resolution cute cartoon style, medium young mushroom with a larger rounded cap, soft moon-white stem, pale blue, lavender, and gentle gray-blue cap colors, crescent moon pattern printed on the mushroom cap, several small painted dew-drop ornaments on the cap surface, a few small solid moon-dew decorative shapes around the mushroom, the ornaments must be flat decorative shapes, not glowing particles, centered object, the object must be centered both horizontally and vertically, object should occupy about 55% to 65% of the canvas height, clean outer silhouette, crisp cutout edge, no glow, no aura, no bloom, no light halo, no sparkle effects, no external shadow, no soil base, no ground, no platform, cozy whimsical farming game asset, no text, no watermark, not pixel art, not realistic
+```
+
+---
+
+### 月露蘑菇成熟阶段：stage_3_mature.png
+
+保存路径：
+
+```text
+assets/images/crops/moondew_mushroom/stage_3_mature.png
+```
+
+图片要求：
+
+* 尺寸：512 × 512
+* 背景：纯绿色背景，后期抠图
+* 用途：作物 stage 3
+* 形象：成熟蘑菇，菌盖圆润饱满，带月露装饰
+* 颜色：月白、淡蓝、淡紫、灰蓝
+* 不带文字
+
+英文提示词：
+
+```text
+A cute fantasy crop growth stage asset, fully mature Moondew Mushroom, stage 3, 512x512, solid pure chroma key green background, background color must be exactly RGB(0,255,0) / HEX #00FF00, not transparent, no checkerboard pattern, no fake transparency, high-resolution cute cartoon style, fully mature harvestable mushroom, round plump mushroom cap, soft moon-white stem, pale blue, lavender, and gentle gray-blue cap colors, clear crescent moon pattern printed on the cap, several small painted dew-drop ornaments on the cap surface, a few small solid moon-dew ornaments around the mushroom, the ornaments must look like cute decorative flat shapes, not glowing effects, clearly harvestable, centered object, the object must be centered both horizontally and vertically, object should occupy about 70% to 80% of the canvas height, clean outer silhouette, crisp cutout edge, no glow, no aura, no bloom, no light halo, no sparkle effects, no external shadow, no soil base, no ground, no platform, adorable cozy farming game asset, no text, no watermark, not pixel art, not realistic
+```
