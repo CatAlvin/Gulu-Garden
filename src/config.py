@@ -5,7 +5,7 @@ from pathlib import Path
 # =========================
 
 GAME_TITLE = "Gulu Garden - 咕噜小菜园"
-GAME_VERSION = "1.4.0"
+GAME_VERSION = "1.5.0"
 
 # =========================
 # Screen Settings
@@ -200,6 +200,20 @@ HUD_PANEL_BORDER_COLOR = (132, 96, 58, 85)
 HUD_PANEL_SHADOW_COLOR = (0, 0, 0, 28)
 HUD_PANEL_SHADOW_OFFSET_X = 3
 HUD_PANEL_SHADOW_OFFSET_Y = 3
+
+# =========================
+# Inventory Panel Settings
+# =========================
+
+INVENTORY_PANEL_WIDTH = 520
+INVENTORY_PANEL_HEIGHT = 390
+INVENTORY_PANEL_BORDER_RADIUS = 22
+
+INVENTORY_PANEL_BACKGROUND_COLOR = (255, 248, 220, 230)
+INVENTORY_PANEL_BORDER_COLOR = (132, 96, 58, 220)
+INVENTORY_PANEL_SHADOW_COLOR = (0, 0, 0, 35)
+INVENTORY_PANEL_SHADOW_OFFSET_X = 4
+INVENTORY_PANEL_SHADOW_OFFSET_Y = 4
 
 # =========================
 # Day Phase Background Colors

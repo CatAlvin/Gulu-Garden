@@ -85,6 +85,14 @@ from config import (
     HUD_SEED_TEXT_MAX_WIDTH,
     PLOT_UNLOCK_COST_BASE,
     PLOT_UNLOCK_COST_STEP,
+    INVENTORY_PANEL_WIDTH,
+    INVENTORY_PANEL_HEIGHT,
+    INVENTORY_PANEL_BORDER_RADIUS,
+    INVENTORY_PANEL_BACKGROUND_COLOR,
+    INVENTORY_PANEL_BORDER_COLOR,
+    INVENTORY_PANEL_SHADOW_COLOR,
+    INVENTORY_PANEL_SHADOW_OFFSET_X,
+    INVENTORY_PANEL_SHADOW_OFFSET_Y,
 )
 
 from models.inventory import Inventory
@@ -185,6 +193,7 @@ class Game:
         self.message = "Version 1.2: Basic codex system."
         
         self.show_codex_panel = False
+        self.show_inventory_panel = False
         
         self.plots = self.create_plots()
 
@@ -656,12 +665,16 @@ class Game:
                     self.toggle_codex_panel()
                 
                 elif event.key == pygame.K_i:
-                    self.print_inventory_summary()
+                    self.toggle_inventory_panel()
 
                 elif event.key == pygame.K_ESCAPE:
                     if self.show_codex_panel:
                         self.show_codex_panel = False
                         self.message = "Codex closed."
+
+                    if self.show_inventory_panel:
+                        self.show_inventory_panel = False
+                        self.message = "Inventory closed."
                 
                 elif event.key == pygame.K_q:
                     self.select_crop(CROP_STARBUBBLE_RADISH)
@@ -689,6 +702,10 @@ class Game:
 
     def handle_mouse_click(self, position: tuple[int, int]) -> None:
         """Handle left mouse click on farm plots."""
+        if self.has_open_panel():
+            self.message = "请先关闭当前面板，再操作菜园。"
+            print(self.message)
+            return
         
         # handle shop button click
         if self.shop_button.is_clicked(position):
@@ -871,6 +888,30 @@ class Game:
         print("====================================")
 
         self.message = "Seed inventory printed in terminal."
+
+    def get_total_seed_count(self) -> int:
+        """Return total seed count across all configured crops."""
+        total = 0
+
+        for crop_id in CROP_IDS:
+            total += self.inventory.get_seed_count(crop_id)
+
+        return total
+
+    def toggle_inventory_panel(self) -> None:
+        """Toggle the simple inventory panel."""
+        self.show_inventory_panel = not self.show_inventory_panel
+
+        if self.show_inventory_panel:
+            self.show_codex_panel = False
+            self.print_inventory_summary()
+            self.message = "Inventory opened. Press I or Esc to close."
+        else:
+            self.message = "Inventory closed."
+    
+    def has_open_panel(self) -> bool:
+        """Return whether any overlay panel is currently open."""
+        return self.show_codex_panel or self.show_inventory_panel
     
     def print_codex_entry(self) -> None:
         """Print selected crop codex entry for debugging."""
@@ -885,6 +926,7 @@ class Game:
         self.show_codex_panel = not self.show_codex_panel
 
         if self.show_codex_panel:
+            self.show_inventory_panel = False
             self.print_codex_entry()
             self.message = "Codex opened. Press C or Esc to close."
         else:
@@ -989,6 +1031,26 @@ class Game:
 
         return None
 
+    def get_seed_item_by_crop_id(self, crop_id: str) -> dict | None:
+        """Find seed shop item data by crop id."""
+        for item in self.shop_items.values():
+            if item.get("item_type") != "seed":
+                continue
+
+            if item.get("crop_id") == crop_id:
+                return item
+
+        return None
+
+    def get_selected_seed_price(self) -> int | None:
+        """Return seed price for the currently selected crop."""
+        item = self.get_seed_item_by_crop_id(self.selected_crop_id)
+
+        if item is None:
+            return None
+
+        return int(item.get("price", 0))
+
     def get_background_color(self) -> tuple[int, int, int]:
         """Return background color for current day phase."""
         if self.current_day_phase == "morning":
@@ -1053,6 +1115,9 @@ class Game:
 
         if self.show_codex_panel:
             self.draw_codex_panel()
+
+        if self.show_inventory_panel:
+            self.draw_inventory_panel()
 
         pygame.display.flip()
     
@@ -1295,6 +1360,128 @@ class Game:
                 text_y += line_height
 
             text_y += 6
+
+    def draw_inventory_panel(self) -> None:
+        """Draw a simple in-game inventory panel."""
+        panel_width = INVENTORY_PANEL_WIDTH
+        panel_height = INVENTORY_PANEL_HEIGHT
+        panel_x = (SCREEN_WIDTH - panel_width) // 2
+        panel_y = (SCREEN_HEIGHT - panel_height) // 2
+
+        shadow_rect = pygame.Rect(
+            panel_x + INVENTORY_PANEL_SHADOW_OFFSET_X,
+            panel_y + INVENTORY_PANEL_SHADOW_OFFSET_Y,
+            panel_width,
+            panel_height,
+        )
+        shadow_surface = pygame.Surface((panel_width, panel_height), pygame.SRCALPHA)
+        pygame.draw.rect(
+            shadow_surface,
+            INVENTORY_PANEL_SHADOW_COLOR,
+            shadow_surface.get_rect(),
+            border_radius=INVENTORY_PANEL_BORDER_RADIUS,
+        )
+        self.screen.blit(shadow_surface, shadow_rect)
+
+        panel_surface = pygame.Surface((panel_width, panel_height), pygame.SRCALPHA)
+        pygame.draw.rect(
+            panel_surface,
+            INVENTORY_PANEL_BACKGROUND_COLOR,
+            panel_surface.get_rect(),
+            border_radius=INVENTORY_PANEL_BORDER_RADIUS,
+        )
+        pygame.draw.rect(
+            panel_surface,
+            INVENTORY_PANEL_BORDER_COLOR,
+            panel_surface.get_rect(),
+            width=4,
+            border_radius=INVENTORY_PANEL_BORDER_RADIUS,
+        )
+
+        self.screen.blit(panel_surface, (panel_x, panel_y))
+
+        title_font = pygame.font.SysFont("Microsoft YaHei", 30, bold=True)
+        body_font = pygame.font.SysFont("Microsoft YaHei", 23)
+        hint_font = pygame.font.SysFont("Microsoft YaHei", 18)
+
+        title_surface = title_font.render("背包 Inventory", True, TEXT_COLOR)
+        self.screen.blit(title_surface, (panel_x + 32, panel_y + 24))
+
+        hint_surface = hint_font.render("Press I or Esc to close", True, TEXT_COLOR)
+        self.screen.blit(hint_surface, (panel_x + panel_width - 230, panel_y + 34))
+
+        coin_surface = body_font.render(
+            f"当前金币：{self.player.coins}",
+            True,
+            TEXT_COLOR,
+        )
+        self.screen.blit(coin_surface, (panel_x + 36, panel_y + 82))
+
+        selected_crop_name = self.get_crop_name_cn(self.selected_crop_id)
+        selected_surface = body_font.render(
+            f"当前选择：{selected_crop_name}",
+            True,
+            TEXT_COLOR,
+        )
+        self.screen.blit(selected_surface, (panel_x + 36, panel_y + 114))
+
+        seed_price = self.get_selected_seed_price()
+
+        if seed_price is None:
+            price_text = "种子价格：未找到商品"
+        elif self.player.coins >= seed_price:
+            price_text = f"种子价格：{seed_price} 金币"
+        else:
+            price_text = f"种子价格：{seed_price} 金币（金币不足）"
+
+        price_surface = body_font.render(
+            price_text,
+            True,
+            TEXT_COLOR,
+        )
+        self.screen.blit(price_surface, (panel_x + 36, panel_y + 146))
+
+        total_seed_count = self.get_total_seed_count()
+        total_surface = body_font.render(
+            f"种子总数：{total_seed_count}",
+            True,
+            TEXT_COLOR,
+        )
+        self.screen.blit(total_surface, (panel_x + 36, panel_y + 178))
+
+        start_y = panel_y + 220
+        line_height = 38
+
+        for index, crop_id in enumerate(CROP_IDS):
+            crop_name_cn = self.get_crop_name_cn(crop_id)
+            seed_count = self.inventory.get_seed_count(crop_id)
+
+            if crop_id == self.selected_crop_id:
+                prefix = "> "
+            else:
+                prefix = "   "
+
+            line_text = f"{prefix}{crop_name_cn}种子：{seed_count}"
+            line_surface = body_font.render(line_text, True, TEXT_COLOR)
+            self.screen.blit(
+                line_surface,
+                (panel_x + 52, start_y + index * line_height),
+            )
+
+        if total_seed_count == 0:
+            empty_surface = hint_font.render(
+                "当前没有种子，可以点击商店按钮购买。",
+                True,
+                TEXT_COLOR,
+            )
+            self.screen.blit(
+                empty_surface,
+                (panel_x + 52, start_y + len(CROP_IDS) * line_height + 8),
+            )
+
+        help_text = "Q / W / E 选择作物，B 或商店按钮购买种子"
+        help_surface = hint_font.render(help_text, True, TEXT_COLOR)
+        self.screen.blit(help_surface, (panel_x + 36, panel_y + panel_height - 52))
 
     def draw_message(self) -> None:
         """Draw current status message."""
