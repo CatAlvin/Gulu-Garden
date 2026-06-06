@@ -24,6 +24,7 @@ class Plot:
     height: int
     is_unlocked: bool
     status: str
+    unlock_cost: int = 0
     crop_id: str | None = None
     planted_at: float | None = None
     current_stage: int | None = None
@@ -103,3 +104,12 @@ class Plot:
     def is_locked(self) -> bool:
         """Return whether this plot is locked."""
         return (not self.is_unlocked) or self.status == PLOT_LOCKED
+    
+    def unlock(self) -> None:
+        """Unlock this plot and reset it to empty."""
+        self.is_unlocked = True
+        self.status = PLOT_EMPTY
+        self.crop_id = None
+        self.planted_at = None
+        self.current_stage = None
+        self.unlock_cost = 0

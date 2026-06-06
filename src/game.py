@@ -83,6 +83,8 @@ from config import (
     HUD_PANEL_SHADOW_OFFSET_X,
     HUD_PANEL_SHADOW_OFFSET_Y,
     HUD_SEED_TEXT_MAX_WIDTH,
+    PLOT_UNLOCK_COST_BASE,
+    PLOT_UNLOCK_COST_STEP,
 )
 
 from models.inventory import Inventory
@@ -291,12 +293,54 @@ class Game:
                     height=PLOT_SIZE,
                     is_unlocked=is_unlocked,
                     status=status,
+                    unlock_cost=self.get_plot_unlock_cost(plot_id),
                 )
 
                 plots.append(plot)
                 plot_id += 1
 
         return plots
+
+    def get_plot_unlock_cost(self, plot_id: int) -> int:
+        """Return unlock cost for a plot."""
+        if plot_id <= PLOT_UNLOCKED_COUNT:
+            return 0
+
+        locked_index = plot_id - PLOT_UNLOCKED_COUNT - 1
+        return PLOT_UNLOCK_COST_BASE + locked_index * PLOT_UNLOCK_COST_STEP
+
+    def try_unlock_plot(self, plot: Plot) -> None:
+        """Try to unlock a locked plot with coins."""
+        if not plot.is_locked():
+            return
+
+        unlock_cost = plot.unlock_cost
+
+        if unlock_cost <= 0:
+            plot.unlock()
+            self.message = f"Plot {plot.plot_id} unlocked. You can plant here now."
+            print(self.message)
+            return
+
+        if self.player.coins < unlock_cost:
+            missing_coins = unlock_cost - self.player.coins
+            self.message = (
+                f"土地 {plot.plot_id} 尚未解锁。"
+                f"需要 {unlock_cost} 金币，"
+                f"当前有 {self.player.coins} 金币，"
+                f"还差 {missing_coins} 金币。"
+            )
+            print(self.message)
+            return
+
+        self.player.spend_coins(unlock_cost)
+        plot.unlock()
+
+        self.message = (
+            f"已花费 {unlock_cost} 金币解锁土地 {plot.plot_id}。"
+            f"当前金币：{self.player.coins}"
+        )
+        print(self.message)
 
     def load_shop_items(self) -> dict:
         """Load shop item data from data/shop_items.json."""
@@ -378,6 +422,7 @@ class Game:
                 "plot_id": plot.plot_id,
                 "status": plot.status,
                 "is_unlocked": plot.is_unlocked,
+                "unlock_cost": plot.unlock_cost,
                 "crop": None,
             }
 
@@ -492,6 +537,17 @@ class Game:
 
             plot.status = plot_data.get("status", plot.status)
             plot.is_unlocked = bool(plot_data.get("is_unlocked", plot.is_unlocked))
+            plot.unlock_cost = int(
+                plot_data.get(
+                    "unlock_cost",
+                    self.get_plot_unlock_cost(plot.plot_id),
+                )
+            )
+
+            self.normalize_plot_unlock_state(plot)
+
+            if plot.is_locked():
+                continue
 
             crop_data = plot_data.get("crop")
 
@@ -506,6 +562,24 @@ class Game:
                 crop_data.get("planted_at")
             )
             plot.current_stage = crop_data.get("current_stage")
+            
+    def normalize_plot_unlock_state(self, plot: Plot) -> None:
+        """Normalize plot unlock state for old saves and dirty save data."""
+        if plot.is_unlocked:
+            if plot.status == PLOT_LOCKED:
+                plot.status = PLOT_EMPTY
+
+            plot.unlock_cost = 0
+            return
+
+        plot.is_unlocked = False
+        plot.status = PLOT_LOCKED
+        plot.crop_id = None
+        plot.planted_at = None
+        plot.current_stage = None
+
+        if plot.unlock_cost <= 0:
+            plot.unlock_cost = self.get_plot_unlock_cost(plot.plot_id)
             
     def apply_offline_growth(self) -> list[str]:
         """Apply growth after loading save data and report offline changes."""
@@ -625,9 +699,7 @@ class Game:
         for plot in self.plots:
             if plot.contains_point(position):
                 if plot.is_locked():
-                    self.message = f"Plot {plot.plot_id}: locked"
-                    print(self.message)
-                    print("This plot is locked.")
+                    self.try_unlock_plot(plot)
                     return
 
                 if plot.can_plant():
@@ -1240,6 +1312,31 @@ class Game:
         )
         pygame.draw.rect(self.screen, (255, 0, 0), debug_rect, width=2)
 
+    def draw_locked_plot_label(self, plot: Plot, plot_rect: pygame.Rect) -> None:
+        """Draw unlock cost label on a locked plot."""
+        if plot.unlock_cost > 0:
+            main_text = str(plot.unlock_cost)
+            sub_text = "Coins"
+        else:
+            main_text = "Locked"
+            sub_text = ""
+
+        main_font = pygame.font.SysFont("Microsoft YaHei", 22, bold=True)
+        sub_font = pygame.font.SysFont("Microsoft YaHei", 16)
+
+        main_surface = main_font.render(main_text, True, TEXT_COLOR)
+        main_rect = main_surface.get_rect(
+            center=(plot_rect.centerx, plot_rect.centery - 8)
+        )
+        self.screen.blit(main_surface, main_rect)
+
+        if sub_text:
+            sub_surface = sub_font.render(sub_text, True, TEXT_COLOR)
+            sub_rect = sub_surface.get_rect(
+                center=(plot_rect.centerx, plot_rect.centery + 18)
+            )
+            self.screen.blit(sub_surface, sub_rect)
+
     def draw_plots(self) -> None:
         """Draw all farm plots."""
         for plot in self.plots:
@@ -1283,6 +1380,10 @@ class Game:
             if crop_image_drawn:
                 continue
 
+            if plot.is_locked():
+                self.draw_locked_plot_label(plot, rect)
+                continue
+
             if plot.status == PLOT_PLANTED:
                 label_text = self.get_plot_fallback_text(plot)
                 label_color = PLOT_PLANTED_TEXT_COLOR
@@ -1298,7 +1399,7 @@ class Game:
 
             label_surface = self.font.render(label_text, True, label_color)
             label_rect = label_surface.get_rect(center=rect.center)
-            self.screen.blit(label_surface, label_rect)
+            self.screen.blit(label_surface, label_rect) 
 
     def draw_crop_on_plot(self, plot: Plot, plot_rect: pygame.Rect) -> bool:
         """Draw crop image on a plot.

@@ -5,7 +5,7 @@ from pathlib import Path
 # =========================
 
 GAME_TITLE = "Gulu Garden - 咕噜小菜园"
-GAME_VERSION = "1.2.0"
+GAME_VERSION = "1.4.0"
 
 # =========================
 # Screen Settings
@@ -121,6 +121,13 @@ FARM_AREA_X = 180
 FARM_AREA_Y = 300
 FARM_AREA_WIDTH = 920
 FARM_AREA_HEIGHT = 330
+
+# =========================
+# Plot Unlock Settings
+# =========================
+
+PLOT_UNLOCK_COST_BASE = 100
+PLOT_UNLOCK_COST_STEP = 50
 
 # =========================
 # Plot Colors
