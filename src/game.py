@@ -93,6 +93,15 @@ from config import (
     INVENTORY_PANEL_SHADOW_COLOR,
     INVENTORY_PANEL_SHADOW_OFFSET_X,
     INVENTORY_PANEL_SHADOW_OFFSET_Y,
+    SHOP_PANEL_WIDTH,
+    SHOP_PANEL_HEIGHT,
+    SHOP_PANEL_BORDER_RADIUS,
+    SHOP_PANEL_BACKGROUND_COLOR,
+    SHOP_PANEL_BORDER_COLOR,
+    SHOP_PANEL_SHADOW_COLOR,
+    SHOP_PANEL_SHADOW_OFFSET_X,
+    SHOP_PANEL_SHADOW_OFFSET_Y,
+    SHOP_ITEM_ROW_HEIGHT,
 )
 
 from models.inventory import Inventory
@@ -194,6 +203,7 @@ class Game:
         
         self.show_codex_panel = False
         self.show_inventory_panel = False
+        self.show_shop_panel = False
         
         self.plots = self.create_plots()
 
@@ -202,7 +212,7 @@ class Game:
             y=SHOP_BUTTON_Y,
             width=SHOP_BUTTON_WIDTH,
             height=SHOP_BUTTON_HEIGHT,
-            text="买星泡萝卜种子",
+            text="商店 Shop",
         )
 
         self.select_crop(self.selected_crop_id)
@@ -651,7 +661,33 @@ class Game:
                     self.handle_mouse_click(event.pos)
 
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_b:
+                if event.key == pygame.K_ESCAPE:
+                    if self.show_codex_panel:
+                        self.show_codex_panel = False
+                        self.message = "Codex closed."
+
+                    if self.show_inventory_panel:
+                        self.show_inventory_panel = False
+                        self.message = "Inventory closed."
+
+                    if self.show_shop_panel:
+                        self.show_shop_panel = False
+                        self.message = "Shop closed."
+
+                elif self.show_shop_panel:
+                    if event.key == pygame.K_1:
+                        self.buy_seed_from_shop_index(0)
+
+                    elif event.key == pygame.K_2:
+                        self.buy_seed_from_shop_index(1)
+
+                    elif event.key == pygame.K_3:
+                        self.buy_seed_from_shop_index(2)
+
+                    else:
+                        self.message = "商店已打开：点击商品行或按 1/2/3 购买，Esc 关闭。"
+
+                elif event.key == pygame.K_b:
                     self.buy_selected_seed()
 
                 elif event.key == pygame.K_s:
@@ -660,22 +696,13 @@ class Game:
 
                 elif event.key == pygame.K_t:
                     self.print_task_summary()
-                    
-                elif event.key == pygame.K_c:
-                    self.toggle_codex_panel()
-                
+
                 elif event.key == pygame.K_i:
                     self.toggle_inventory_panel()
 
-                elif event.key == pygame.K_ESCAPE:
-                    if self.show_codex_panel:
-                        self.show_codex_panel = False
-                        self.message = "Codex closed."
+                elif event.key == pygame.K_c:
+                    self.toggle_codex_panel()
 
-                    if self.show_inventory_panel:
-                        self.show_inventory_panel = False
-                        self.message = "Inventory closed."
-                
                 elif event.key == pygame.K_q:
                     self.select_crop(CROP_STARBUBBLE_RADISH)
 
@@ -702,14 +729,18 @@ class Game:
 
     def handle_mouse_click(self, position: tuple[int, int]) -> None:
         """Handle left mouse click on farm plots."""
+        if self.show_shop_panel:
+            self.handle_shop_panel_click(position)
+            return
+
         if self.has_open_panel():
             self.message = "请先关闭当前面板，再操作菜园。"
             print(self.message)
             return
-        
+
         # handle shop button click
         if self.shop_button.is_clicked(position):
-            self.buy_selected_seed()
+            self.toggle_shop_panel()
             return
         
         # handle farm plot clicks
@@ -848,8 +879,46 @@ class Game:
             f"{crop_name} Seeds: {seed_count}"
         )
 
+    def buy_seed_from_shop_index(self, index: int) -> None:
+        """Buy a seed item from shop panel by 0-based index."""
+        seed_items = self.get_seed_shop_items()
+
+        if index < 0 or index >= len(seed_items):
+            self.message = "Shop item not found."
+            print(self.message)
+            return
+
+        item = seed_items[index]
+        item_id = item.get("id")
+        crop_id = item.get("crop_id")
+
+        if item_id is None or crop_id is None:
+            self.message = "Shop item data missing."
+            print(self.message)
+            return
+
+        success, message = self.shop_system.buy_seed(
+            item_id=item_id,
+            player=self.player,
+            inventory=self.inventory,
+        )
+
+        crop_name_cn = self.get_crop_name_cn(crop_id)
+        seed_count = self.inventory.get_seed_count(crop_id)
+
+        if success:
+            self.selected_crop_id = crop_id
+            self.message = (
+                f"Bought {crop_name_cn} seed. "
+                f"Selected {crop_name_cn}. Owned: {seed_count}"
+            )
+        else:
+            self.message = message
+
+        print(self.message)
+
     def select_crop(self, crop_id: str) -> None:
-        """Select a crop for planting and buying seeds."""
+        """Select a crop for planting and shortcut buying."""
         if crop_id not in self.crop_data:
             self.message = f"Crop not found: {crop_id}"
             print(self.message)
@@ -859,8 +928,6 @@ class Game:
 
         crop_name_cn = self.get_crop_name_cn(crop_id)
         seed_count = self.inventory.get_seed_count(crop_id)
-
-        self.shop_button.text = f"买{crop_name_cn}种子"
 
         self.message = f"Selected {crop_name_cn}. Seeds: {seed_count}"
         print(self.message)
@@ -909,9 +976,24 @@ class Game:
         else:
             self.message = "Inventory closed."
     
+    def toggle_shop_panel(self) -> None:
+        """Toggle the simple shop panel."""
+        self.show_shop_panel = not self.show_shop_panel
+
+        if self.show_shop_panel:
+            self.show_inventory_panel = False
+            self.show_codex_panel = False
+            self.message = "商店已打开：点击商品行或按 1/2/3 购买，Esc 关闭。"
+        else:
+            self.message = "商店已关闭。"
+    
     def has_open_panel(self) -> bool:
         """Return whether any overlay panel is currently open."""
-        return self.show_codex_panel or self.show_inventory_panel
+        return (
+            self.show_codex_panel
+            or self.show_inventory_panel
+            or self.show_shop_panel
+        )
     
     def print_codex_entry(self) -> None:
         """Print selected crop codex entry for debugging."""
@@ -1041,6 +1123,18 @@ class Game:
                 return item
 
         return None
+    
+    def get_seed_shop_items(self) -> list[dict]:
+        """Return all seed shop items in crop order."""
+        seed_items = []
+
+        for crop_id in CROP_IDS:
+            item = self.get_seed_item_by_crop_id(crop_id)
+
+            if item is not None:
+                seed_items.append(item)
+
+        return seed_items
 
     def get_selected_seed_price(self) -> int | None:
         """Return seed price for the currently selected crop."""
@@ -1118,6 +1212,9 @@ class Game:
 
         if self.show_inventory_panel:
             self.draw_inventory_panel()
+
+        if self.show_shop_panel:
+            self.draw_shop_panel()
 
         pygame.display.flip()
     
@@ -1482,6 +1579,169 @@ class Game:
         help_text = "Q / W / E 选择作物，B 或商店按钮购买种子"
         help_surface = hint_font.render(help_text, True, TEXT_COLOR)
         self.screen.blit(help_surface, (panel_x + 36, panel_y + panel_height - 52))
+
+    def draw_shop_panel(self) -> None:
+        """Draw a simple in-game shop panel."""
+        panel_width = SHOP_PANEL_WIDTH
+        panel_height = SHOP_PANEL_HEIGHT
+        panel_x = (SCREEN_WIDTH - panel_width) // 2
+        panel_y = (SCREEN_HEIGHT - panel_height) // 2
+
+        shadow_rect = pygame.Rect(
+            panel_x + SHOP_PANEL_SHADOW_OFFSET_X,
+            panel_y + SHOP_PANEL_SHADOW_OFFSET_Y,
+            panel_width,
+            panel_height,
+        )
+        shadow_surface = pygame.Surface((panel_width, panel_height), pygame.SRCALPHA)
+        pygame.draw.rect(
+            shadow_surface,
+            SHOP_PANEL_SHADOW_COLOR,
+            shadow_surface.get_rect(),
+            border_radius=SHOP_PANEL_BORDER_RADIUS,
+        )
+        self.screen.blit(shadow_surface, shadow_rect)
+
+        panel_surface = pygame.Surface((panel_width, panel_height), pygame.SRCALPHA)
+        pygame.draw.rect(
+            panel_surface,
+            SHOP_PANEL_BACKGROUND_COLOR,
+            panel_surface.get_rect(),
+            border_radius=SHOP_PANEL_BORDER_RADIUS,
+        )
+        pygame.draw.rect(
+            panel_surface,
+            SHOP_PANEL_BORDER_COLOR,
+            panel_surface.get_rect(),
+            width=4,
+            border_radius=SHOP_PANEL_BORDER_RADIUS,
+        )
+        self.screen.blit(panel_surface, (panel_x, panel_y))
+
+        title_font = pygame.font.SysFont("Microsoft YaHei", 30, bold=True)
+        body_font = pygame.font.SysFont("Microsoft YaHei", 22)
+        hint_font = pygame.font.SysFont("Microsoft YaHei", 18)
+
+        title_surface = title_font.render("商店 Shop", True, TEXT_COLOR)
+        self.screen.blit(title_surface, (panel_x + 32, panel_y + 24))
+
+        coin_surface = body_font.render(
+            f"当前金币：{self.player.coins}",
+            True,
+            TEXT_COLOR,
+        )
+        self.screen.blit(coin_surface, (panel_x + 36, panel_y + 74))
+
+        hint_surface = hint_font.render(
+            "点击商品行或按 1/2/3 购买，Esc 关闭",
+            True,
+            TEXT_COLOR,
+        )
+        self.screen.blit(hint_surface, (panel_x + panel_width - 380, panel_y + 36))
+
+        seed_items = self.get_seed_shop_items()
+
+        start_y = panel_y + 122
+
+        for index, item in enumerate(seed_items):
+            row_y = start_y + index * SHOP_ITEM_ROW_HEIGHT
+            row_rect = self.get_shop_item_row_rect(index)
+
+            mouse_pos = pygame.mouse.get_pos()
+
+            if row_rect.collidepoint(mouse_pos):
+                row_color = (255, 236, 188, 150)
+            else:
+                row_color = (255, 255, 255, 80)
+
+            row_surface = pygame.Surface((row_rect.width, row_rect.height), pygame.SRCALPHA)
+            pygame.draw.rect(
+                row_surface,
+                row_color,
+                row_surface.get_rect(),
+                border_radius=12,
+            )
+            self.screen.blit(row_surface, row_rect)
+            
+            crop_id = item.get("crop_id")
+            crop_name_cn = self.get_crop_name_cn(crop_id)
+            price = int(item.get("price", 0))
+            owned_count = self.inventory.get_seed_count(crop_id)
+
+            if self.player.coins >= price:
+                affordability_text = "可购买"
+            else:
+                affordability_text = "金币不足"
+
+            if crop_id == self.selected_crop_id:
+                prefix = "> "
+                buy_status = f"当前选择 / {affordability_text}"
+            else:
+                prefix = "  "
+                buy_status = affordability_text
+
+            row_text = (
+                f"{prefix}{index + 1}. {crop_name_cn}种子 | "
+                f"{price}金 | "
+                f"拥有:{owned_count} | "
+                f"{buy_status}"
+            )
+
+            text_surface  = body_font.render(row_text, True, TEXT_COLOR)
+            self.screen.blit(text_surface, (panel_x + 52, row_y))
+
+        footer_text = "购买后会自动选择对应作物，关闭商店后可直接播种"
+        footer_surface = hint_font.render(footer_text, True, TEXT_COLOR)
+        self.screen.blit(footer_surface, (panel_x + 36, panel_y + panel_height - 48))
+
+    def get_shop_panel_rect(self) -> pygame.Rect:
+        """Return shop panel rect."""
+        panel_x = (SCREEN_WIDTH - SHOP_PANEL_WIDTH) // 2
+        panel_y = (SCREEN_HEIGHT - SHOP_PANEL_HEIGHT) // 2
+
+        return pygame.Rect(
+            panel_x,
+            panel_y,
+            SHOP_PANEL_WIDTH,
+            SHOP_PANEL_HEIGHT,
+        )
+
+    def get_shop_item_row_rect(self, index: int) -> pygame.Rect:
+        """Return clickable rect for a shop item row."""
+        panel_rect = self.get_shop_panel_rect()
+
+        row_x = panel_rect.x + 42
+        row_y = panel_rect.y + 112 + index * SHOP_ITEM_ROW_HEIGHT
+        row_width = panel_rect.width - 84
+        row_height = SHOP_ITEM_ROW_HEIGHT - 8
+
+        return pygame.Rect(
+            row_x,
+            row_y,
+            row_width,
+            row_height,
+        )
+
+    def handle_shop_panel_click(self, position: tuple[int, int]) -> None:
+        """Handle mouse click inside the shop panel."""
+        panel_rect = self.get_shop_panel_rect()
+
+        if not panel_rect.collidepoint(position):
+            self.message = "商店已打开。点击商品行购买，按 Esc 关闭。"
+            print(self.message)
+            return
+
+        seed_items = self.get_seed_shop_items()
+
+        for index, _item in enumerate(seed_items):
+            row_rect = self.get_shop_item_row_rect(index)
+
+            if row_rect.collidepoint(position):
+                self.buy_seed_from_shop_index(index)
+                return
+
+        self.message = "Click a seed row to buy, or press Esc to close."
+        print(self.message)
 
     def draw_message(self) -> None:
         """Draw current status message."""
