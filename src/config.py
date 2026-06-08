@@ -5,7 +5,7 @@ from pathlib import Path
 # =========================
 
 GAME_TITLE = "Gulu Garden - 咕噜小菜园"
-GAME_VERSION = "1.7.0"
+GAME_VERSION = "1.8.0"
 
 # =========================
 # Screen Settings

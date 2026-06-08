@@ -211,7 +211,7 @@ class Game:
             }
         )
 
-        self.message = "Version 1.2: Basic codex system."
+        self.message = "Version 1.8：中文提示统一整理版。"
         
         self.show_codex_panel = False
         self.show_inventory_panel = False
@@ -350,7 +350,7 @@ class Game:
 
         if unlock_cost <= 0:
             plot.unlock()
-            self.message = f"Plot {plot.plot_id} unlocked. You can plant here now."
+            self.message = f"土地 {plot.plot_id} 已解锁，现在可以播种。"
             print(self.message)
             return
 
@@ -493,14 +493,14 @@ class Game:
         """Save current game progress."""
         save_data = self.build_save_data()
         self.save_system.save_game(self.save_path, save_data)
-        print(f"Game saved to {self.save_path}")
+        print(f"游戏已保存到：{self.save_path}")
     
     def load_existing_save(self) -> None:
         """Load existing save data if available."""
         save_data = self.save_system.load_game(self.save_path)
 
         if save_data is None:
-            self.message = "No save found. Started a new game."
+            self.message = "未找到存档，已开始新游戏。"
             print(self.message)
             return
 
@@ -533,9 +533,9 @@ class Game:
             for message in offline_messages:
                 print(message)
         else:
-            self.message = "Loaded save_1.json."
+            self.message = "已读取 save_1.json。"
 
-        print(f"Game loaded from {self.save_path}")
+        print(f"游戏存档读取完成：{self.save_path}")
 
     def sync_codex_from_existing_plots(self) -> None:
         """Sync codex planted records from currently loaded plots.
@@ -635,19 +635,16 @@ class Game:
             became_mature = old_status != PLOT_MATURE and plot.status == PLOT_MATURE
 
             if became_mature:
-                crop_name = self.get_crop_name(plot.crop_id)
-                message = (
-                    f"Plot {plot.plot_id}: {crop_name} became mature "
-                    f"while you were away."
-                )
+                crop_name = self.get_crop_name_cn(plot.crop_id)
+                message = f"离线期间，土地 {plot.plot_id} 的{crop_name}已经成熟。"
                 offline_messages.append(message)
 
             elif old_stage != plot.current_stage:
-                crop_name = self.get_crop_name(plot.crop_id)
-                stage_label = self.get_crop_stage_label(plot)
+                crop_name = self.get_crop_name_cn(plot.crop_id)
+                stage_label = self.get_crop_stage_label_cn(plot)
                 message = (
-                    f"Plot {plot.plot_id}: {crop_name} grew to "
-                    f"{stage_label} while you were away."
+                    f"离线期间，土地 {plot.plot_id} 的{crop_name}"
+                    f"成长到了{stage_label}。"
                 )
                 offline_messages.append(message)
 
@@ -677,15 +674,15 @@ class Game:
                 if event.key == pygame.K_ESCAPE:
                     if self.show_codex_panel:
                         self.show_codex_panel = False
-                        self.message = "Codex closed."
+                        self.message = "图鉴已关闭。"
 
                     if self.show_inventory_panel:
                         self.show_inventory_panel = False
-                        self.message = "Inventory closed."
+                        self.message = "背包已关闭。"
 
                     if self.show_shop_panel:
                         self.show_shop_panel = False
-                        self.message = "Shop closed."
+                        self.message = "商店已关闭。"
 
                 elif self.show_shop_panel:
                     if event.key == pygame.K_1:
@@ -705,7 +702,7 @@ class Game:
 
                 elif event.key == pygame.K_s:
                     self.save_game()
-                    self.message = "Game saved."
+                    self.message = "游戏已保存。"
 
                 elif event.key == pygame.K_t:
                     self.print_task_summary()
@@ -775,26 +772,29 @@ class Game:
                     return
 
                 if plot.status in (PLOT_PLANTED, PLOT_GROWING):
-                    crop_name = self.get_crop_name(plot.crop_id)
-                    stage_label = self.get_crop_stage_label(plot)
-                    self.message = f"Plot {plot.plot_id}: {plot.status} {crop_name} ({stage_label})"
+                    crop_name = self.get_crop_name_cn(plot.crop_id)
+                    stage_label = self.get_crop_stage_label_cn(plot)
+                    self.message = (
+                        f"土地 {plot.plot_id}：{crop_name}正在成长中，"
+                        f"当前阶段：{stage_label}。"
+                    )
                     print(self.message)
-                    print("This crop is still growing.")
                     return
 
-                self.message = f"Plot {plot.plot_id}: {plot.status}"
+                status_name = self.get_plot_status_name_cn(plot.status)
+                self.message = f"土地 {plot.plot_id}：当前状态为{status_name}。"
                 print(self.message)
                 return
 
-        self.message = "Clicked outside farm plots."
+        self.message = "没有点到土地或按钮。"
         print(self.message)
         
     def plant_selected_crop(self, plot: Plot) -> None:
         """Plant the currently selected crop on a plot."""
-        crop_name = self.get_crop_name(self.selected_crop_id)
+        crop_name = self.get_crop_name_cn(self.selected_crop_id)
 
         if not self.inventory.consume_seed(self.selected_crop_id, amount=1):
-            self.message = f"No {crop_name} seeds left. Buy seeds later in the shop."
+            self.message = f"{crop_name}种子不足，请先在商店购买。"
             print(self.message)
             return
 
@@ -810,8 +810,8 @@ class Game:
 
         seed_count = self.inventory.get_seed_count(self.selected_crop_id)
         self.message = (
-            f"Plot {plot.plot_id}: planted {crop_name}. "
-            f"Seeds left: {seed_count}"
+            f"土地 {plot.plot_id}：已种下{crop_name}。"
+            f"剩余种子：{seed_count}"
         )
         print(self.message)
 
@@ -828,18 +828,18 @@ class Game:
         harvested_crop_id = plot.harvest()
 
         if harvested_crop_id is None:
-            self.message = f"Plot {plot.plot_id}: nothing to harvest"
+            self.message = f"土地 {plot.plot_id}：没有可以收获的作物。"
             print(self.message)
             return
 
         crop = self.crop_data.get(harvested_crop_id)
 
         if crop is None:
-            self.message = f"Plot {plot.plot_id}: harvested unknown crop"
+            self.message = f"土地 {plot.plot_id}：收获了未知作物。"
             print(self.message)
             return
 
-        crop_name = crop["name_en"]
+        crop_name = crop.get("name_cn", crop.get("name_en", harvested_crop_id))
         sell_price = crop["sell_price"]
 
         self.player.add_coins(sell_price)
@@ -853,8 +853,8 @@ class Game:
         codex_message = self.codex_system.record_harvested(harvested_crop_id)
 
         self.message = (
-            f"Harvested {crop_name} from Plot {plot.plot_id}. "
-            f"+{sell_price} coins."
+            f"土地 {plot.plot_id}：收获{crop_name}，"
+            f"获得 {sell_price} 金币。"
         )
         print(self.message)
 
@@ -866,7 +866,7 @@ class Game:
             self.message = codex_message
             print(codex_message)
 
-        print(f"Current coins: {self.player.coins}")
+        print(f"当前金币：{self.player.coins}")
 
     def buy_selected_seed(self) -> None:
         """Buy one seed for the currently selected crop."""
@@ -874,7 +874,7 @@ class Game:
 
         if item_id is None:
             crop_name = self.get_crop_name(self.selected_crop_id)
-            self.message = f"No shop item found for {crop_name}."
+            self.message = f"商店中没有找到 {crop_name} 的种子商品。"
             print(self.message)
             return
 
@@ -888,11 +888,11 @@ class Game:
         print(message)
 
         seed_count = self.inventory.get_seed_count(self.selected_crop_id)
-        crop_name = self.get_crop_name(self.selected_crop_id)
+        crop_name_cn = self.get_crop_name_cn(self.selected_crop_id)
 
         print(
-            f"Coins: {self.player.coins}, "
-            f"{crop_name} Seeds: {seed_count}"
+            f"当前金币：{self.player.coins}，"
+            f"{crop_name_cn}种子：{seed_count}"
         )
 
     def buy_seed_from_shop_index(self, index: int) -> None:
@@ -900,7 +900,7 @@ class Game:
         seed_items = self.get_seed_shop_items()
 
         if index < 0 or index >= len(seed_items):
-            self.message = "Shop item not found."
+            self.message = "未找到该商店商品。"
             print(self.message)
             return
 
@@ -909,7 +909,7 @@ class Game:
         crop_id = item.get("crop_id")
 
         if item_id is None or crop_id is None:
-            self.message = "Shop item data missing."
+            self.message = "商店商品数据缺失。"
             print(self.message)
             return
 
@@ -925,8 +925,8 @@ class Game:
         if success:
             self.selected_crop_id = crop_id
             self.message = (
-                f"Bought {crop_name_cn} seed. "
-                f"Selected {crop_name_cn}. Owned: {seed_count}"
+                f"已购买{crop_name_cn}种子。"
+                f"当前选择{crop_name_cn}，拥有数量：{seed_count}"
             )
         else:
             self.message = message
@@ -936,7 +936,7 @@ class Game:
     def select_crop(self, crop_id: str) -> None:
         """Select a crop for planting and shortcut buying."""
         if crop_id not in self.crop_data:
-            self.message = f"Crop not found: {crop_id}"
+            self.message = f"未找到作物：{crop_id}"
             print(self.message)
             return
 
@@ -945,23 +945,22 @@ class Game:
         crop_name_cn = self.get_crop_name_cn(crop_id)
         seed_count = self.inventory.get_seed_count(crop_id)
 
-        self.message = f"Selected {crop_name_cn}. Seeds: {seed_count}"
-        print(self.message)
+        self.message = f"已选择：{crop_name_cn}。种子数量：{seed_count}"
 
     def print_task_summary(self) -> None:
         """Print current task progress for Version 1.1 debugging."""
-        print("========== Task Progress ==========")
+        print("========== 任务进度 Task Progress ==========")
 
         for line in self.task_system.get_task_summary_lines():
             print(line)
 
         print("===================================")
 
-        self.message = "Task progress printed in terminal."
+        self.message = "任务进度已打印到终端。"
 
     def print_inventory_summary(self) -> None:
         """Print current seed inventory for Version 1.3 debugging."""
-        print("========== Seed Inventory ==========")
+        print("========== 种子库存 Seed Inventory ==========")
 
         for crop_id in CROP_IDS:
             crop_name_cn = self.get_crop_name_cn(crop_id)
@@ -970,7 +969,7 @@ class Game:
 
         print("====================================")
 
-        self.message = "Seed inventory printed in terminal."
+        self.message = "种子库存已打印到终端。"
 
     def get_total_seed_count(self) -> int:
         """Return total seed count across all configured crops."""
@@ -988,7 +987,7 @@ class Game:
         if self.show_inventory_panel:
             self.show_codex_panel = False
             self.print_inventory_summary()
-            self.message = "Inventory opened. Press I or Esc to close."
+            self.message = "背包已打开。按 I 或 Esc 关闭。"
         else:
             self.message = "Inventory closed."
     
@@ -1025,8 +1024,8 @@ class Game:
         for line in self.codex_system.get_codex_lines(self.selected_crop_id):
             print(line)
 
-        crop_name = self.get_crop_name(self.selected_crop_id)
-        self.message = f"Codex entry printed: {crop_name}"
+        crop_name = self.get_crop_name_cn(self.selected_crop_id)
+        self.message = f"图鉴条目已打印到终端：{crop_name}"
         
     def toggle_codex_panel(self) -> None:
         """Toggle the simple codex panel."""
@@ -1035,9 +1034,9 @@ class Game:
         if self.show_codex_panel:
             self.show_inventory_panel = False
             self.print_codex_entry()
-            self.message = "Codex opened. Press C or Esc to close."
+            self.message = "图鉴已打开。按 C 或 Esc 关闭。"
         else:
-            self.message = "Codex closed."
+            self.message = "图鉴已关闭。"
     
     def get_crop_name(self, crop_id: str | None) -> str:
         """Get crop English name by crop id."""
@@ -1126,6 +1125,36 @@ class Game:
                 return stage_data["name"]
 
         return "Unknown"
+
+    def get_crop_stage_label_cn(self, plot: Plot) -> str:
+        """Get current crop stage Chinese label."""
+        if plot.crop_id is None or plot.current_stage is None:
+            return "未知阶段"
+
+        crop = self.crop_data.get(plot.crop_id)
+
+        if crop is None:
+            return "未知阶段"
+
+        growth_stages = crop.get("growth_stages", [])
+
+        for stage_data in growth_stages:
+            if stage_data["stage"] == plot.current_stage:
+                return stage_data.get("label_cn", stage_data.get("name", "未知阶段"))
+
+        return "未知阶段"
+
+    def get_plot_status_name_cn(self, status: str) -> str:
+        """Return Chinese display name for a plot status."""
+        status_names = {
+            PLOT_EMPTY: "空地",
+            PLOT_LOCKED: "未解锁",
+            PLOT_PLANTED: "已播种",
+            PLOT_GROWING: "生长中",
+            PLOT_MATURE: "成熟",
+        }
+
+        return status_names.get(status, status)
     
     def get_seed_item_id_by_crop_id(self, crop_id: str) -> str | None:
         """Find seed shop item id by crop id."""
@@ -1186,6 +1215,24 @@ class Game:
 
         return BACKGROUND_COLOR
 
+    def get_day_phase_name_cn(self, phase: str) -> str:
+        """Return Chinese display name for a day phase."""
+        phase_names = {
+            "morning": "清晨",
+            "daytime": "白日",
+            "evening": "傍晚",
+            "midnight": "午夜",
+        }
+
+        return phase_names.get(phase, "未知阶段")
+
+    def get_day_phase_label_bilingual(self, phase: str) -> str:
+        """Return bilingual display label for a day phase."""
+        phase_name_cn = self.get_day_phase_name_cn(phase)
+        phase_name_en = self.time_system.get_day_phase_label(phase)
+
+        return f"{phase_name_cn} {phase_name_en}"
+
     def update(self) -> None:
         """Update game state."""
         if self.day_phase_preview_override is None:
@@ -1212,14 +1259,14 @@ class Game:
 
         if phase is None:
             self.current_day_phase = self.time_system.get_day_phase()
-            phase_label = self.time_system.get_day_phase_label(self.current_day_phase)
-            self.message = f"Preview disabled. Using real day phase: {phase_label}."
+            phase_label = self.get_day_phase_label_bilingual(self.current_day_phase)
+            self.message = f"已恢复真实时间昼夜阶段：{phase_label}。"
             print(self.message)
             return
 
         self.current_day_phase = phase
-        phase_label = self.time_system.get_day_phase_label(phase)
-        self.message = f"Preview day phase: {phase_label}. Press 0 to return to real time."
+        phase_label = self.get_day_phase_label_bilingual(phase)
+        self.message = f"正在预览昼夜阶段：{phase_label}。按 0 恢复真实时间。"
         print(self.message)
     
 
@@ -1351,11 +1398,10 @@ class Game:
             max_width=HUD_SEED_TEXT_MAX_WIDTH,
         )
         seed_surface = self.font.render(seed_text, True, TEXT_COLOR)
-        seed_surface = self.font.render(seed_text, True, TEXT_COLOR)
         self.screen.blit(seed_surface, (HUD_SEED_TEXT_X, HUD_SEED_TEXT_Y))
 
         current_time_text = self.time_system.get_current_time_text()
-        phase_label = self.time_system.get_day_phase_label(self.current_day_phase)
+        phase_label = self.get_day_phase_label_bilingual(self.current_day_phase)
 
         if self.day_phase_preview_override is None:
             time_text = f"{current_time_text} | {phase_label}"
@@ -1459,7 +1505,7 @@ class Game:
         )
         self.screen.blit(title_surface, (panel_x + 32, panel_y + 24))
 
-        hint_surface = body_font.render("Press C or Esc to close", True, TEXT_COLOR)
+        hint_surface = body_font.render("按 C 或 Esc 关闭", True, TEXT_COLOR)
         self.screen.blit(hint_surface, (panel_x + panel_width - 270, panel_y + 32))
 
         codex_lines = self.codex_system.get_codex_lines(self.selected_crop_id)
@@ -1532,7 +1578,7 @@ class Game:
         title_surface = title_font.render("背包 Inventory", True, TEXT_COLOR)
         self.screen.blit(title_surface, (panel_x + 32, panel_y + 24))
 
-        hint_surface = hint_font.render("Press I or Esc to close", True, TEXT_COLOR)
+        hint_surface = hint_font.render("按 I 或 Esc 关闭", True, TEXT_COLOR)
         self.screen.blit(hint_surface, (panel_x + panel_width - 230, panel_y + 34))
 
         coin_surface = body_font.render(
@@ -1604,7 +1650,7 @@ class Game:
                 (panel_x + 52, start_y + len(CROP_IDS) * line_height + 8),
             )
 
-        help_text = "Q / W / E 选择作物，B 或商店按钮购买种子"
+        help_text = "Q/W/E 选择作物，B 快捷购买，商店面板可购买更多种子"
         help_surface = hint_font.render(help_text, True, TEXT_COLOR)
         self.screen.blit(help_surface, (panel_x + 36, panel_y + panel_height - 52))
 
@@ -1855,7 +1901,7 @@ class Game:
                 self.buy_seed_from_shop_index(index)
                 return
 
-        self.message = "Click a seed row to buy, or press Esc to close."
+        self.message = "点击种子商品行购买，或按 Esc 关闭商店。"
         print(self.message)
 
     def draw_message(self) -> None:
@@ -1878,7 +1924,7 @@ class Game:
         """Draw unlock cost label on a locked plot."""
         if plot.unlock_cost > 0:
             main_text = str(plot.unlock_cost)
-            sub_text = "Coins"
+            sub_text = "金币"
         else:
             main_text = "Locked"
             sub_text = ""

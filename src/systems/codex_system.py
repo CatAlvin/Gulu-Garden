@@ -89,7 +89,7 @@ class CodexSystem:
         crop_progress["has_planted"] = True
 
         crop_name = self.get_crop_display_name(crop_id)
-        return f"Codex updated: planted {crop_name}."
+        return f"图鉴更新：已记录种植{crop_name}。"
 
     def record_harvested(self, crop_id: str) -> str | None:
         """Record that a crop has been harvested."""
@@ -104,7 +104,7 @@ class CodexSystem:
         crop_progress["has_harvested"] = True
 
         crop_name = self.get_crop_display_name(crop_id)
-        return f"Codex updated: harvested {crop_name}."
+        return f"图鉴更新：已记录收获{crop_name}。"
 
     def get_crop_display_name(self, crop_id: str) -> str:
         """Return crop display name."""
@@ -113,13 +113,7 @@ class CodexSystem:
         if crop is None:
             return crop_id
 
-        name_cn = crop.get("name_cn")
-        name_en = crop.get("name_en")
-
-        if name_cn and name_en:
-            return f"{name_cn} / {name_en}"
-
-        return name_en or name_cn or crop_id
+        return crop.get("name_cn", crop.get("name_en", crop_id))
 
     def get_codex_lines(self, crop_id: str) -> list[str]:
         """Return codex display lines for one crop."""
@@ -127,7 +121,7 @@ class CodexSystem:
         crop_progress = self.progress.get(crop_id)
 
         if crop is None or crop_progress is None:
-            return ["Codex entry not found."]
+            return ["未找到该图鉴条目。"]
 
         name_cn = crop.get("name_cn", crop_id)
         name_en = crop.get("name_en", crop_id)

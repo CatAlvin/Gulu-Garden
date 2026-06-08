@@ -14,19 +14,26 @@ class ShopSystem:
         item = self.shop_items.get(item_id)
 
         if item is None:
-            return False, "Shop item not found."
+            return False, "商店中没有找到该商品。"
 
         if item.get("item_type") != "seed":
-            return False, "This item is not a seed."
+            return False, "该商品不是种子。"
 
-        price = item["price"]
-        crop_id = item["crop_id"]
-        amount = item.get("amount", 1)
-        item_name = item["name_en"]
+        price = int(item.get("price", 0))
+        crop_id = item.get("crop_id")
+        amount = int(item.get("amount", 1))
+        item_name = item.get("name_cn", item.get("name_en", item_id))
+
+        if crop_id is None:
+            return False, "该种子商品缺少作物 ID。"
 
         if not player.spend_coins(price):
-            return False, f"Not enough coins to buy {item_name}."
+            return False, f"金币不足，无法购买{item_name}。需要 {price} 金币。"
 
         inventory.add_seed(crop_id, amount)
 
-        return True, f"Bought {amount} {item_name} for {price} coins."
+        return (
+            True,
+            f"已购买 {amount} 个{item_name}，花费 {price} 金币。"
+            f"当前金币：{player.coins}"
+        )
