@@ -102,6 +102,18 @@ from config import (
     SHOP_PANEL_SHADOW_OFFSET_X,
     SHOP_PANEL_SHADOW_OFFSET_Y,
     SHOP_ITEM_ROW_HEIGHT,
+    TASK_PANEL_X,
+    TASK_PANEL_Y,
+    TASK_PANEL_WIDTH,
+    TASK_PANEL_HEIGHT,
+    TASK_PANEL_BORDER_RADIUS,
+    TASK_PANEL_BACKGROUND_COLOR,
+    TASK_PANEL_BORDER_COLOR,
+    TASK_PANEL_SHADOW_COLOR,
+    TASK_PANEL_SHADOW_OFFSET_X,
+    TASK_PANEL_SHADOW_OFFSET_Y,
+    TASK_ACTIVE_TEXT_COLOR,
+    TASK_COMPLETED_TEXT_COLOR,
 )
 
 from models.inventory import Inventory
@@ -204,6 +216,7 @@ class Game:
         self.show_codex_panel = False
         self.show_inventory_panel = False
         self.show_shop_panel = False
+        self.show_task_panel = True
         
         self.plots = self.create_plots()
 
@@ -696,6 +709,9 @@ class Game:
 
                 elif event.key == pygame.K_t:
                     self.print_task_summary()
+                
+                elif event.key == pygame.K_r:
+                    self.toggle_task_panel()
 
                 elif event.key == pygame.K_i:
                     self.toggle_inventory_panel()
@@ -986,6 +1002,15 @@ class Game:
             self.message = "商店已打开：点击商品行或按 1/2/3 购买，Esc 关闭。"
         else:
             self.message = "商店已关闭。"
+
+    def toggle_task_panel(self) -> None:
+        """Toggle the task panel."""
+        self.show_task_panel = not self.show_task_panel
+
+        if self.show_task_panel:
+            self.message = "任务栏已显示。"
+        else:
+            self.message = "任务栏已隐藏。"
     
     def has_open_panel(self) -> bool:
         """Return whether any overlay panel is currently open."""
@@ -1206,6 +1231,9 @@ class Game:
         self.draw_message()
         self.draw_plots()
         self.draw_buttons()
+
+        if self.show_task_panel:
+            self.draw_task_panel()
 
         if self.show_codex_panel:
             self.draw_codex_panel()
@@ -1693,6 +1721,93 @@ class Game:
         footer_text = "购买后会自动选择对应作物，关闭商店后可直接播种"
         footer_surface = hint_font.render(footer_text, True, TEXT_COLOR)
         self.screen.blit(footer_surface, (panel_x + 36, panel_y + panel_height - 48))
+
+    def draw_task_panel(self) -> None:
+        """Draw a compact task progress panel."""
+        shadow_rect = pygame.Rect(
+            TASK_PANEL_X + TASK_PANEL_SHADOW_OFFSET_X,
+            TASK_PANEL_Y + TASK_PANEL_SHADOW_OFFSET_Y,
+            TASK_PANEL_WIDTH,
+            TASK_PANEL_HEIGHT,
+        )
+
+        shadow_surface = pygame.Surface(
+            (TASK_PANEL_WIDTH, TASK_PANEL_HEIGHT),
+            pygame.SRCALPHA,
+        )
+        pygame.draw.rect(
+            shadow_surface,
+            TASK_PANEL_SHADOW_COLOR,
+            shadow_surface.get_rect(),
+            border_radius=TASK_PANEL_BORDER_RADIUS,
+        )
+        self.screen.blit(shadow_surface, shadow_rect)
+
+        panel_surface = pygame.Surface(
+            (TASK_PANEL_WIDTH, TASK_PANEL_HEIGHT),
+            pygame.SRCALPHA,
+        )
+        pygame.draw.rect(
+            panel_surface,
+            TASK_PANEL_BACKGROUND_COLOR,
+            panel_surface.get_rect(),
+            border_radius=TASK_PANEL_BORDER_RADIUS,
+        )
+        pygame.draw.rect(
+            panel_surface,
+            TASK_PANEL_BORDER_COLOR,
+            panel_surface.get_rect(),
+            width=3,
+            border_radius=TASK_PANEL_BORDER_RADIUS,
+        )
+        self.screen.blit(panel_surface, (TASK_PANEL_X, TASK_PANEL_Y))
+
+        title_font = pygame.font.SysFont("Microsoft YaHei", 22, bold=True)
+        body_font = pygame.font.SysFont("Microsoft YaHei", 17)
+
+        completed_count, total_count = self.task_system.get_completion_count()
+        title_text = f"任务 Tasks {completed_count}/{total_count}"
+
+        title_surface = title_font.render(title_text, True, TEXT_COLOR)
+        self.screen.blit(title_surface, (TASK_PANEL_X + 16, TASK_PANEL_Y + 12))
+
+        task_items = self.task_system.get_task_display_items()
+
+        start_y = TASK_PANEL_Y + 46
+        line_height = 26
+        max_text_width = TASK_PANEL_WIDTH - 30
+
+        if not task_items:
+            empty_text = "暂无任务"
+            empty_surface = body_font.render(empty_text, True, TEXT_COLOR)
+            self.screen.blit(empty_surface, (TASK_PANEL_X + 16, start_y))
+            return
+
+        for index, item in enumerate(task_items[:3]):
+            reward_coins = item.get("reward_coins", 0)
+
+            if reward_coins > 0:
+                reward_text = f" 奖励:{reward_coins}金"
+            else:
+                reward_text = ""
+                
+            if item["is_completed"]:
+                line = f"[完成] {item['title']}{reward_text}"
+                line_color = TASK_COMPLETED_TEXT_COLOR
+            else:
+                line = f"[进行] {item['title']} {item['progress_text']}{reward_text}"
+                line_color = TASK_ACTIVE_TEXT_COLOR
+
+            line_text = self.fit_text_to_width(
+                text=line,
+                font=body_font,
+                max_width=max_text_width,
+            )
+            line_surface = body_font.render(line_text, True, line_color)
+            self.screen.blit(
+                line_surface,
+                (TASK_PANEL_X + 16, start_y + index * line_height),
+            )
 
     def get_shop_panel_rect(self) -> pygame.Rect:
         """Return shop panel rect."""

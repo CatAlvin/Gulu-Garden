@@ -138,25 +138,82 @@ class TaskSystem:
         task_progress["reward_claimed"] = True
 
         task_title = task.get("title_cn", task_id)
+        
+        if reward_coins > 0:
+            return f"任务完成：{task_title}，获得 {reward_coins} 金币。"
 
-        return f"Task completed: {task_title}. +{reward_coins} coins."
+        return f"任务完成：{task_title}。"
 
     def get_task_summary_lines(self) -> list[str]:
         """Return short text lines for debugging or future HUD display."""
         lines = []
 
-        for task_id, task in self.task_data.items():
-            task_progress = self.progress.get(task_id, {})
-            title = task.get("title_cn", task_id)
-            current = task_progress.get("progress", 0)
-            target = task_progress.get("target", task.get("target_count", 1))
-            reward_claimed = task_progress.get("reward_claimed", False)
+        for item in self.get_task_display_items():
+            reward_coins = item.get("reward_coins", 0)
 
-            if reward_claimed:
-                status_text = "Done"
+            if reward_coins > 0:
+                reward_text = f" 奖励:{reward_coins}金"
             else:
-                status_text = f"{current}/{target}"
+                reward_text = ""
 
-            lines.append(f"{title}: {status_text}")
+            if item["is_completed"]:
+                line = f"[完成] {item['title']}{reward_text}"
+            else:
+                line = (
+                    f"[进行] {item['title']} "
+                    f"{item['progress_text']}{reward_text}"
+                )
+
+            lines.append(line)
 
         return lines
+
+    def get_task_display_items(self) -> list[dict]:
+        """Return task display data for UI panels."""
+        display_items = []
+
+        for task_id, task in self.task_data.items():
+            task_progress = self.progress.get(task_id, {})
+
+            title = task.get("title_cn", task_id)
+            current = int(task_progress.get("progress", 0))
+            target = int(task_progress.get("target", task.get("target_count", 1)))
+            reward_claimed = bool(task_progress.get("reward_claimed", False))
+
+            reward = task.get("reward", {})
+            reward_coins = int(reward.get("coins", 0))
+
+            if reward_claimed:
+                status_text = "完成"
+                progress_text = f"{target}/{target}"
+                is_completed = True
+            else:
+                status_text = "进行"
+                progress_text = f"{current}/{target}"
+                is_completed = False
+
+            display_items.append(
+                {
+                    "task_id": task_id,
+                    "title": title,
+                    "status_text": status_text,
+                    "progress_text": progress_text,
+                    "is_completed": is_completed,
+                    "reward_coins": reward_coins,
+                }
+            )
+        return display_items
+    
+    
+    def get_completion_count(self) -> tuple[int, int]:
+        """Return completed task count and total task count."""
+        task_items = self.get_task_display_items()
+
+        total_count = len(task_items)
+        completed_count = 0
+
+        for item in task_items:
+            if item.get("is_completed", False):
+                completed_count += 1
+
+        return completed_count, total_count

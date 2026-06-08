@@ -5,7 +5,7 @@ from pathlib import Path
 # =========================
 
 GAME_TITLE = "Gulu Garden - 咕噜小菜园"
-GAME_VERSION = "1.6.0"
+GAME_VERSION = "1.7.0"
 
 # =========================
 # Screen Settings
@@ -230,6 +230,25 @@ SHOP_PANEL_SHADOW_OFFSET_X = 4
 SHOP_PANEL_SHADOW_OFFSET_Y = 4
 
 SHOP_ITEM_ROW_HEIGHT = 72
+
+# =========================
+# Task Panel Settings
+# =========================
+
+TASK_PANEL_X = 24
+TASK_PANEL_Y = 130
+TASK_PANEL_WIDTH = 280
+TASK_PANEL_HEIGHT = 138
+TASK_PANEL_BORDER_RADIUS = 16
+
+TASK_PANEL_BACKGROUND_COLOR = (255, 248, 220, 185)
+TASK_PANEL_BORDER_COLOR = (132, 96, 58, 135)
+TASK_PANEL_SHADOW_COLOR = (0, 0, 0, 28)
+TASK_PANEL_SHADOW_OFFSET_X = 3
+TASK_PANEL_SHADOW_OFFSET_Y = 3
+
+TASK_ACTIVE_TEXT_COLOR = TEXT_COLOR
+TASK_COMPLETED_TEXT_COLOR = (88, 132, 78)
 
 # =========================
 # Day Phase Background Colors
