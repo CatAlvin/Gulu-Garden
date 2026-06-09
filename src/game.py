@@ -1,4 +1,5 @@
 import json
+import random
 import time
 
 import pygame
@@ -250,7 +251,7 @@ class Game:
             }
         )
 
-        self.message = "Version 1.9：UI 结构整理与小型重构。"
+        self.message = "Version 2.0：完美品质系统基础版。"
         
         self.show_codex_panel = False
         self.show_inventory_panel = False
@@ -880,6 +881,7 @@ class Game:
 
         crop_name = crop.get("name_cn", crop.get("name_en", harvested_crop_id))
         sell_price = crop["sell_price"]
+        is_perfect_quality = self.roll_perfect_quality(crop)
 
         self.player.add_coins(sell_price)
 
@@ -888,24 +890,57 @@ class Game:
             crop_id=harvested_crop_id,
             player=self.player,
         )
-        
-        codex_message = self.codex_system.record_harvested(harvested_crop_id)
 
-        self.message = (
-            f"土地 {plot.plot_id}：收获{crop_name}，"
-            f"获得 {sell_price} 金币。"
+        codex_messages = []
+
+        harvested_codex_message = self.codex_system.record_harvested(
+            harvested_crop_id
         )
-        print(self.message)
+
+        if harvested_codex_message:
+            codex_messages.append(harvested_codex_message)
+
+        if is_perfect_quality:
+            perfect_codex_message = self.codex_system.record_perfect_quality(
+                harvested_crop_id
+            )
+
+            if perfect_codex_message:
+                codex_messages.append(perfect_codex_message)
+
+        if is_perfect_quality:
+            harvest_message = (
+                f"土地 {plot.plot_id}：收获完美品质{crop_name}！"
+                f"获得 {sell_price} 金币。"
+            )
+        else:
+            harvest_message = (
+                f"土地 {plot.plot_id}：收获普通品质{crop_name}，"
+                f"获得 {sell_price} 金币。"
+            )
+
+        self.message = harvest_message
+        print(harvest_message)
 
         for task_message in task_messages:
-            self.message = task_message
             print(task_message)
 
-        if codex_message:
-            self.message = codex_message
+        for codex_message in codex_messages:
             print(codex_message)
 
+        self.message = harvest_message
         print(f"当前金币：{self.player.coins}")
+
+    def roll_perfect_quality(self, crop: dict) -> bool:
+        """Return whether the harvested crop becomes perfect quality."""
+        perfect_quality_chance = float(crop.get("perfect_quality_chance", 0.0))
+
+        if perfect_quality_chance <= 0:
+            return False
+
+        perfect_quality_chance = max(0.0, min(1.0, perfect_quality_chance))
+
+        return random.random() < perfect_quality_chance
 
     def buy_selected_seed(self) -> None:
         """Buy one seed for the currently selected crop."""

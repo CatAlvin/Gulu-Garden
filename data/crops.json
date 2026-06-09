@@ -30,7 +30,8 @@
       }
     ],
     "need_water": true,
-    "can_wither": false
+    "can_wither": false,
+    "perfect_quality_chance": 0.10
   },
   "cloud_sugar_pumpkin": {
     "id": "cloud_sugar_pumpkin",

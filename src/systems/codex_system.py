@@ -106,6 +106,21 @@ class CodexSystem:
         crop_name = self.get_crop_display_name(crop_id)
         return f"图鉴更新：已记录收获{crop_name}。"
 
+    def record_perfect_quality(self, crop_id: str) -> str | None:
+        """Record that a crop has been harvested as perfect quality."""
+        crop_progress = self.progress.get(crop_id)
+
+        if crop_progress is None:
+            return None
+
+        if crop_progress["has_perfect_quality"]:
+            return None
+
+        crop_progress["has_perfect_quality"] = True
+
+        crop_name = self.get_crop_display_name(crop_id)
+        return f"图鉴更新：已记录完美品质{crop_name}。"
+
     def get_crop_display_name(self, crop_id: str) -> str:
         """Return crop display name."""
         crop = self.crop_data.get(crop_id)
@@ -129,6 +144,11 @@ class CodexSystem:
 
         planted_text = "已种植" if crop_progress["has_planted"] else "未种植"
         harvested_text = "已收获" if crop_progress["has_harvested"] else "未收获"
+        perfect_quality_text = (
+            "已获得"
+            if crop_progress["has_perfect_quality"]
+            else "未获得"
+        )
 
         if crop_progress["best_method_unlocked"]:
             best_method_text = "已解锁"
@@ -142,6 +162,7 @@ class CodexSystem:
             f"描述：{description}",
             f"种植记录：{planted_text}",
             f"收获记录：{harvested_text}",
+            f"完美品质记录：{perfect_quality_text}",
             f"最佳种植方式：{best_method_text}",
             "===========================",
         ]
