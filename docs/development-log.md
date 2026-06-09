@@ -1519,3 +1519,103 @@ Version 1.8.0 已经完成中文提示统一整理版。
 项目现在的核心 UI 和玩家反馈更加统一：主要操作提示使用中文，系统标题保留中英双语，既方便中文玩家理解，也保留了 GitHub 作品集展示时的英文术语辨识度。
 
 下一步建议进入 Version 1.9：UI 结构整理与小型重构。
+
+---
+
+## Version 1.9.0 — UI 结构整理与小型重构
+
+日期：2026-06-09
+
+### 版本定位
+
+Version 1.9.0 是《咕噜小菜园》（Gulu Garden）的 UI 结构整理与小型重构版本。
+
+这一版本不新增玩法、不新增素材、不修改存档结构，而是对当前已经逐渐变长的 `game.py` 做一轮低风险整理。重点是把重复的 UI 面板外壳绘制逻辑抽到 `src/ui/panel.py`，让 `game.py` 不再重复维护多份半透明圆角面板绘制代码。
+
+### 已完成
+
+* 将游戏版本更新为 `1.9.0`
+* 默认启动提示更新为 Version 1.9
+* 启用 `src/ui/panel.py`
+* 在 `src/ui/panel.py` 中新增 `draw_rounded_rect()`
+* 在 `src/ui/panel.py` 中新增 `draw_rounded_panel()`
+* `draw_rounded_rect()` 负责绘制基础半透明圆角矩形
+* `draw_rounded_panel()` 负责绘制带可选阴影、背景和边框的通用面板
+* HUD 面板外壳改为使用 `draw_rounded_panel()`
+* 任务栏面板外壳改为使用 `draw_rounded_panel()`
+* 背包面板外壳改为使用 `draw_rounded_panel()`
+* 商店面板外壳改为使用 `draw_rounded_panel()`
+* 图鉴面板外壳改为使用 `draw_rounded_panel()`
+* 新增图鉴面板配置项
+
+  * `CODEX_PANEL_WIDTH`
+  * `CODEX_PANEL_HEIGHT`
+  * `CODEX_PANEL_BORDER_RADIUS`
+  * `CODEX_PANEL_BACKGROUND_COLOR`
+  * `CODEX_PANEL_BORDER_COLOR`
+  * `CODEX_PANEL_BORDER_WIDTH`
+* 删除 `game.py` 中旧的 `draw_transparent_rounded_rect()` helper
+* 整理 `game.py` 顶部 `config` import
+* 移除重复导入项
+* 保留场景背景、土地、作物、按钮、HUD、任务栏、背包、商店、图鉴的原有视觉效果
+* 保留商店商品行 hover 逻辑
+* 保留背包种子列表逻辑
+* 保留任务栏任务进度显示逻辑
+* 保留图鉴文本换行逻辑
+* 原有买种子、播种、成长、收获、金币、多作物、图鉴、背包、商店、任务栏、土地解锁、存档、离线成长和昼夜系统保持正常
+
+### 当前 UI helper 职责
+
+| 文件                 | 职责                      |
+| ------------------ | ----------------------- |
+| `src/ui/panel.py`  | 通用圆角矩形和圆角面板绘制           |
+| `src/game.py`      | 决定什么时候绘制哪个面板，并组织面板内容    |
+| `src/ui/button.py` | 按钮组件和按钮图片 fallback      |
+| `src/ui/hud.py`    | 预留，当前暂未拆分 HUD           |
+| `src/ui/panel.py`  | 不保存游戏状态，不读取存档，不直接操作玩家数据 |
+
+### 当前重构边界
+
+* 不重写主循环
+* 不重写事件系统
+* 不拆存档系统
+* 不拆商店购买逻辑
+* 不拆任务系统
+* 不拆图鉴系统
+* 不把完整背包面板迁出 `game.py`
+* 不把完整商店面板迁出 `game.py`
+* 不把完整图鉴面板迁出 `game.py`
+* 不新增素材
+* 不更新 AI prompt
+* 不修改 JSON 存档结构
+
+### 验收结果
+
+* 游戏可以正常启动
+* HUD 背板正常显示
+* HUD 背板阴影、背景、边框正常
+* 任务栏正常显示
+* 按 `R` 可以隐藏或显示任务栏
+* 背包面板正常显示
+* 按 `I` 或 `Esc` 可以关闭背包
+* 商店面板正常显示
+* 商店商品行 hover 正常
+* 商店商品行点击购买正常
+* 商店内 `1 / 2 / 3` 快捷购买正常
+* 图鉴面板正常显示
+* 图鉴文本换行正常
+* 按 `C` 或 `Esc` 可以关闭图鉴
+* 播种功能正常
+* 收获功能正常
+* 土地解锁功能正常
+* 昼夜预览功能正常
+* 存档保存和读取正常
+* `saves/save_1.json` 仍然不应提交到 GitHub
+
+### 当前结论
+
+Version 1.9.0 已经完成 UI 结构整理与小型重构。
+
+项目现在把多个面板重复使用的圆角半透明外壳绘制逻辑统一到了 `src/ui/panel.py`，让 `game.py` 更专注于组织数据、处理事件和调用系统逻辑。当前重构保持了原有功能和视觉效果，没有引入新的玩法复杂度，也没有改变存档结构。
+
+下一步建议进入 Version 2.0：完美品质系统基础版。
