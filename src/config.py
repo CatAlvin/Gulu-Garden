@@ -5,7 +5,7 @@ from pathlib import Path
 # =========================
 
 GAME_TITLE = "Gulu Garden - 咕噜小菜园"
-GAME_VERSION = "1.8.0"
+GAME_VERSION = "1.9.0"
 
 # =========================
 # Screen Settings
@@ -230,6 +230,18 @@ SHOP_PANEL_SHADOW_OFFSET_X = 4
 SHOP_PANEL_SHADOW_OFFSET_Y = 4
 
 SHOP_ITEM_ROW_HEIGHT = 72
+
+# =========================
+# Codex Panel Settings
+# =========================
+
+CODEX_PANEL_WIDTH = 760
+CODEX_PANEL_HEIGHT = 430
+CODEX_PANEL_BORDER_RADIUS = 24
+
+CODEX_PANEL_BACKGROUND_COLOR = (255, 248, 220, 225)
+CODEX_PANEL_BORDER_COLOR = (130, 96, 55, 255)
+CODEX_PANEL_BORDER_WIDTH = 4
 
 # =========================
 # Task Panel Settings

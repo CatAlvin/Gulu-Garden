@@ -4,74 +4,98 @@ import time
 import pygame
 
 from config import (
+    # Basic game information
+    GAME_TITLE,
     GAME_VERSION,
+
+    # Screen settings
+    SCREEN_WIDTH,
+    SCREEN_HEIGHT,
+    FPS,
+
+    # Project paths
+    DATA_DIR,
     SAVES_DIR,
+
+    # Image asset paths
+    DAY_PHASE_BACKGROUND_IMAGES,
+    PLOT_EMPTY_IMAGE,
+    PLOT_LOCKED_IMAGE,
+    CROP_STAGE_IMAGE_PATHS,
+    SHOP_BUTTON_NORMAL_IMAGE,
+    SHOP_BUTTON_HOVER_IMAGE,
+    ICON_COIN_IMAGE,
+    ICON_SEED_STARBUBBLE_RADISH_IMAGE,
+
+    # Background colors
     BACKGROUND_COLOR,
-    BUTTON_BORDER_COLOR,
-    BUTTON_HOVER_COLOR,
-    BUTTON_NORMAL_COLOR,
-    BUTTON_TEXT_COLOR,
+    BACKGROUND_MORNING_COLOR,
     BACKGROUND_DAYTIME_COLOR,
     BACKGROUND_EVENING_COLOR,
     BACKGROUND_MIDNIGHT_COLOR,
-    BACKGROUND_MORNING_COLOR,
-    SHOP_BUTTON_HEIGHT,
-    SHOP_BUTTON_WIDTH,
-    SHOP_BUTTON_X,
-    SHOP_BUTTON_Y,
-    DATA_DIR,
-    FPS,
-    GAME_TITLE,
-    PLOT_COLUMNS,
-    PLOT_ROWS,
-    PLOT_EMPTY_COLOR,
+
+    # Scene tint settings
+    SCENE_TINT_SETTINGS,
+
+    # Farm plot layout
     PLOT_ROW_COUNTS,
+    PLOT_ROWS,
+    PLOT_SIZE,
     PLOT_GAP_X,
     PLOT_GAP_Y,
-    FARM_AREA_X,
-    FARM_AREA_Y,
-    FARM_AREA_WIDTH,
-    FARM_AREA_HEIGHT,
-    PLOT_LOCKED_COLOR,
-    PLOT_PLANTED_COLOR,
-    PLOT_PLANTED_TEXT_COLOR,
-    PLOT_BORDER_COLOR,
-    PLOT_SIZE,
     PLOT_UNLOCKED_COUNT,
     FARM_AREA_X,
     FARM_AREA_Y,
     FARM_AREA_WIDTH,
     FARM_AREA_HEIGHT,
-    SCREEN_HEIGHT,
-    SCREEN_WIDTH,
-    TEXT_COLOR,
+
+    # Plot unlock settings
+    PLOT_UNLOCK_COST_BASE,
+    PLOT_UNLOCK_COST_STEP,
+
+    # Plot colors
+    PLOT_EMPTY_COLOR,
+    PLOT_LOCKED_COLOR,
+    PLOT_PLANTED_COLOR,
     PLOT_GROWING_COLOR,
-    PLOT_GROWING_TEXT_COLOR,
     PLOT_MATURE_COLOR,
+    PLOT_BORDER_COLOR,
+    PLOT_PLANTED_TEXT_COLOR,
+    PLOT_GROWING_TEXT_COLOR,
     PLOT_MATURE_TEXT_COLOR,
-    DAY_PHASE_BACKGROUND_IMAGES,
-    SCENE_TINT_SETTINGS,
-    PLOT_EMPTY_IMAGE,
-    PLOT_LOCKED_IMAGE,
-    CROP_BASE_OFFSET_Y,
-    CROP_STAGE_IMAGE_PATHS,
+
+    # Common text color
+    TEXT_COLOR,
+
+    # Crop image drawing settings
     CROP_STAGE_IMAGE_SIZE,
-    ENABLE_DAY_PHASE_PREVIEW_KEYS,
-    SHOP_BUTTON_NORMAL_IMAGE,
-    SHOP_BUTTON_HOVER_IMAGE,
-    ICON_COIN_IMAGE,
+    CROP_BASE_OFFSET_Y,
+
+    # Button settings
+    SHOP_BUTTON_X,
+    SHOP_BUTTON_Y,
+    SHOP_BUTTON_WIDTH,
+    SHOP_BUTTON_HEIGHT,
+    BUTTON_NORMAL_COLOR,
+    BUTTON_HOVER_COLOR,
+    BUTTON_BORDER_COLOR,
+    BUTTON_TEXT_COLOR,
+
+    # HUD icon settings
     HUD_ICON_SIZE,
     HUD_COIN_ICON_X,
     HUD_COIN_ICON_Y,
     HUD_COIN_TEXT_X,
     HUD_COIN_TEXT_Y,
+    HUD_SEED_ICON_X,
+    HUD_SEED_ICON_Y,
     HUD_SEED_TEXT_X,
     HUD_SEED_TEXT_Y,
     HUD_TIME_TEXT_X,
     HUD_TIME_TEXT_Y,
-    ICON_SEED_STARBUBBLE_RADISH_IMAGE,
-    HUD_SEED_ICON_X,
-    HUD_SEED_ICON_Y,
+    HUD_SEED_TEXT_MAX_WIDTH,
+
+    # HUD panel settings
     HUD_PANEL_X,
     HUD_PANEL_Y,
     HUD_PANEL_WIDTH,
@@ -82,9 +106,8 @@ from config import (
     HUD_PANEL_SHADOW_COLOR,
     HUD_PANEL_SHADOW_OFFSET_X,
     HUD_PANEL_SHADOW_OFFSET_Y,
-    HUD_SEED_TEXT_MAX_WIDTH,
-    PLOT_UNLOCK_COST_BASE,
-    PLOT_UNLOCK_COST_STEP,
+
+    # Inventory panel settings
     INVENTORY_PANEL_WIDTH,
     INVENTORY_PANEL_HEIGHT,
     INVENTORY_PANEL_BORDER_RADIUS,
@@ -93,6 +116,8 @@ from config import (
     INVENTORY_PANEL_SHADOW_COLOR,
     INVENTORY_PANEL_SHADOW_OFFSET_X,
     INVENTORY_PANEL_SHADOW_OFFSET_Y,
+
+    # Shop panel settings
     SHOP_PANEL_WIDTH,
     SHOP_PANEL_HEIGHT,
     SHOP_PANEL_BORDER_RADIUS,
@@ -102,6 +127,8 @@ from config import (
     SHOP_PANEL_SHADOW_OFFSET_X,
     SHOP_PANEL_SHADOW_OFFSET_Y,
     SHOP_ITEM_ROW_HEIGHT,
+
+    # Task panel settings
     TASK_PANEL_X,
     TASK_PANEL_Y,
     TASK_PANEL_WIDTH,
@@ -114,6 +141,17 @@ from config import (
     TASK_PANEL_SHADOW_OFFSET_Y,
     TASK_ACTIVE_TEXT_COLOR,
     TASK_COMPLETED_TEXT_COLOR,
+
+    # Codex panel settings
+    CODEX_PANEL_WIDTH,
+    CODEX_PANEL_HEIGHT,
+    CODEX_PANEL_BORDER_RADIUS,
+    CODEX_PANEL_BACKGROUND_COLOR,
+    CODEX_PANEL_BORDER_COLOR,
+    CODEX_PANEL_BORDER_WIDTH,
+
+    # Debug settings
+    ENABLE_DAY_PHASE_PREVIEW_KEYS,
 )
 
 from models.inventory import Inventory
@@ -127,6 +165,7 @@ from systems.task_system import TaskSystem
 from systems.time_system import TimeSystem
 
 from ui.button import Button
+from ui.panel import draw_rounded_panel
 
 from utils.constants import (
     CROP_IDS,
@@ -211,7 +250,7 @@ class Game:
             }
         )
 
-        self.message = "Version 1.8：中文提示统一整理版。"
+        self.message = "Version 1.9：UI 结构整理与小型重构。"
         
         self.show_codex_panel = False
         self.show_inventory_panel = False
@@ -989,7 +1028,7 @@ class Game:
             self.print_inventory_summary()
             self.message = "背包已打开。按 I 或 Esc 关闭。"
         else:
-            self.message = "Inventory closed."
+            self.message = "背包已关闭。"
     
     def toggle_shop_panel(self) -> None:
         """Toggle the simple shop panel."""
@@ -1309,57 +1348,10 @@ class Game:
 
         self.screen.fill(self.get_background_color())
 
-    def draw_transparent_rounded_rect(
-        self,
-        x: int,
-        y: int,
-        width: int,
-        height: int,
-        background_color: tuple[int, int, int, int],
-        border_color: tuple[int, int, int, int],
-        border_radius: int,
-        border_width: int = 2,
-    ) -> None:
-        """Draw a transparent rounded rectangle on the screen."""
-        panel_surface = pygame.Surface((width, height), pygame.SRCALPHA)
-
-        panel_rect = pygame.Rect(0, 0, width, height)
-
-        pygame.draw.rect(
-            panel_surface,
-            background_color,
-            panel_rect,
-            border_radius=border_radius,
-        )
-
-        if border_width > 0:
-            pygame.draw.rect(
-                panel_surface,
-                border_color,
-                panel_rect,
-                width=border_width,
-                border_radius=border_radius,
-            )
-
-        self.screen.blit(panel_surface, (x, y))
-
     def draw_hud_panel(self) -> None:
         """Draw a soft transparent panel behind HUD text."""
-        shadow_x = HUD_PANEL_X + HUD_PANEL_SHADOW_OFFSET_X
-        shadow_y = HUD_PANEL_Y + HUD_PANEL_SHADOW_OFFSET_Y
-
-        self.draw_transparent_rounded_rect(
-            x=shadow_x,
-            y=shadow_y,
-            width=HUD_PANEL_WIDTH,
-            height=HUD_PANEL_HEIGHT,
-            background_color=HUD_PANEL_SHADOW_COLOR,
-            border_color=(0, 0, 0, 0),
-            border_radius=HUD_PANEL_BORDER_RADIUS,
-            border_width=0,
-        )
-
-        self.draw_transparent_rounded_rect(
+        draw_rounded_panel(
+            screen=self.screen,
             x=HUD_PANEL_X,
             y=HUD_PANEL_Y,
             width=HUD_PANEL_WIDTH,
@@ -1368,6 +1360,9 @@ class Game:
             border_color=HUD_PANEL_BORDER_COLOR,
             border_radius=HUD_PANEL_BORDER_RADIUS,
             border_width=2,
+            shadow_color=HUD_PANEL_SHADOW_COLOR,
+            shadow_offset_x=HUD_PANEL_SHADOW_OFFSET_X,
+            shadow_offset_y=HUD_PANEL_SHADOW_OFFSET_Y,
         )
     
     def draw_hud(self) -> None:
@@ -1464,30 +1459,22 @@ class Game:
 
     def draw_codex_panel(self) -> None:
         """Draw a simple in-game codex panel."""
-        panel_width = 760
-        panel_height = 430
+        panel_width = CODEX_PANEL_WIDTH
+        panel_height = CODEX_PANEL_HEIGHT
         panel_x = (SCREEN_WIDTH - panel_width) // 2
         panel_y = (SCREEN_HEIGHT - panel_height) // 2
 
-        panel_surface = pygame.Surface((panel_width, panel_height), pygame.SRCALPHA)
-        panel_surface.fill((255, 248, 220, 225))
-
-        panel_rect = panel_surface.get_rect(topleft=(panel_x, panel_y))
-        pygame.draw.rect(
-            panel_surface,
-            (255, 248, 220, 225),
-            panel_surface.get_rect(),
-            border_radius=24,
+        draw_rounded_panel(
+            screen=self.screen,
+            x=panel_x,
+            y=panel_y,
+            width=panel_width,
+            height=panel_height,
+            background_color=CODEX_PANEL_BACKGROUND_COLOR,
+            border_color=CODEX_PANEL_BORDER_COLOR,
+            border_radius=CODEX_PANEL_BORDER_RADIUS,
+            border_width=CODEX_PANEL_BORDER_WIDTH,
         )
-        pygame.draw.rect(
-            panel_surface,
-            (130, 96, 55, 255),
-            panel_surface.get_rect(),
-            width=4,
-            border_radius=24,
-        )
-
-        self.screen.blit(panel_surface, panel_rect)
 
         title_font = pygame.font.SysFont("Microsoft YaHei", 30, bold=True)
         body_font = pygame.font.SysFont("Microsoft YaHei", 22)
@@ -1539,37 +1526,20 @@ class Game:
         panel_x = (SCREEN_WIDTH - panel_width) // 2
         panel_y = (SCREEN_HEIGHT - panel_height) // 2
 
-        shadow_rect = pygame.Rect(
-            panel_x + INVENTORY_PANEL_SHADOW_OFFSET_X,
-            panel_y + INVENTORY_PANEL_SHADOW_OFFSET_Y,
-            panel_width,
-            panel_height,
-        )
-        shadow_surface = pygame.Surface((panel_width, panel_height), pygame.SRCALPHA)
-        pygame.draw.rect(
-            shadow_surface,
-            INVENTORY_PANEL_SHADOW_COLOR,
-            shadow_surface.get_rect(),
+        draw_rounded_panel(
+            screen=self.screen,
+            x=panel_x,
+            y=panel_y,
+            width=panel_width,
+            height=panel_height,
+            background_color=INVENTORY_PANEL_BACKGROUND_COLOR,
+            border_color=INVENTORY_PANEL_BORDER_COLOR,
             border_radius=INVENTORY_PANEL_BORDER_RADIUS,
+            border_width=4,
+            shadow_color=INVENTORY_PANEL_SHADOW_COLOR,
+            shadow_offset_x=INVENTORY_PANEL_SHADOW_OFFSET_X,
+            shadow_offset_y=INVENTORY_PANEL_SHADOW_OFFSET_Y,
         )
-        self.screen.blit(shadow_surface, shadow_rect)
-
-        panel_surface = pygame.Surface((panel_width, panel_height), pygame.SRCALPHA)
-        pygame.draw.rect(
-            panel_surface,
-            INVENTORY_PANEL_BACKGROUND_COLOR,
-            panel_surface.get_rect(),
-            border_radius=INVENTORY_PANEL_BORDER_RADIUS,
-        )
-        pygame.draw.rect(
-            panel_surface,
-            INVENTORY_PANEL_BORDER_COLOR,
-            panel_surface.get_rect(),
-            width=4,
-            border_radius=INVENTORY_PANEL_BORDER_RADIUS,
-        )
-
-        self.screen.blit(panel_surface, (panel_x, panel_y))
 
         title_font = pygame.font.SysFont("Microsoft YaHei", 30, bold=True)
         body_font = pygame.font.SysFont("Microsoft YaHei", 23)
@@ -1661,36 +1631,20 @@ class Game:
         panel_x = (SCREEN_WIDTH - panel_width) // 2
         panel_y = (SCREEN_HEIGHT - panel_height) // 2
 
-        shadow_rect = pygame.Rect(
-            panel_x + SHOP_PANEL_SHADOW_OFFSET_X,
-            panel_y + SHOP_PANEL_SHADOW_OFFSET_Y,
-            panel_width,
-            panel_height,
-        )
-        shadow_surface = pygame.Surface((panel_width, panel_height), pygame.SRCALPHA)
-        pygame.draw.rect(
-            shadow_surface,
-            SHOP_PANEL_SHADOW_COLOR,
-            shadow_surface.get_rect(),
+        draw_rounded_panel(
+            screen=self.screen,
+            x=panel_x,
+            y=panel_y,
+            width=panel_width,
+            height=panel_height,
+            background_color=SHOP_PANEL_BACKGROUND_COLOR,
+            border_color=SHOP_PANEL_BORDER_COLOR,
             border_radius=SHOP_PANEL_BORDER_RADIUS,
+            border_width=4,
+            shadow_color=SHOP_PANEL_SHADOW_COLOR,
+            shadow_offset_x=SHOP_PANEL_SHADOW_OFFSET_X,
+            shadow_offset_y=SHOP_PANEL_SHADOW_OFFSET_Y,
         )
-        self.screen.blit(shadow_surface, shadow_rect)
-
-        panel_surface = pygame.Surface((panel_width, panel_height), pygame.SRCALPHA)
-        pygame.draw.rect(
-            panel_surface,
-            SHOP_PANEL_BACKGROUND_COLOR,
-            panel_surface.get_rect(),
-            border_radius=SHOP_PANEL_BORDER_RADIUS,
-        )
-        pygame.draw.rect(
-            panel_surface,
-            SHOP_PANEL_BORDER_COLOR,
-            panel_surface.get_rect(),
-            width=4,
-            border_radius=SHOP_PANEL_BORDER_RADIUS,
-        )
-        self.screen.blit(panel_surface, (panel_x, panel_y))
 
         title_font = pygame.font.SysFont("Microsoft YaHei", 30, bold=True)
         body_font = pygame.font.SysFont("Microsoft YaHei", 22)
@@ -1770,43 +1724,20 @@ class Game:
 
     def draw_task_panel(self) -> None:
         """Draw a compact task progress panel."""
-        shadow_rect = pygame.Rect(
-            TASK_PANEL_X + TASK_PANEL_SHADOW_OFFSET_X,
-            TASK_PANEL_Y + TASK_PANEL_SHADOW_OFFSET_Y,
-            TASK_PANEL_WIDTH,
-            TASK_PANEL_HEIGHT,
-        )
-
-        shadow_surface = pygame.Surface(
-            (TASK_PANEL_WIDTH, TASK_PANEL_HEIGHT),
-            pygame.SRCALPHA,
-        )
-        pygame.draw.rect(
-            shadow_surface,
-            TASK_PANEL_SHADOW_COLOR,
-            shadow_surface.get_rect(),
+        draw_rounded_panel(
+            screen=self.screen,
+            x=TASK_PANEL_X,
+            y=TASK_PANEL_Y,
+            width=TASK_PANEL_WIDTH,
+            height=TASK_PANEL_HEIGHT,
+            background_color=TASK_PANEL_BACKGROUND_COLOR,
+            border_color=TASK_PANEL_BORDER_COLOR,
             border_radius=TASK_PANEL_BORDER_RADIUS,
+            border_width=3,
+            shadow_color=TASK_PANEL_SHADOW_COLOR,
+            shadow_offset_x=TASK_PANEL_SHADOW_OFFSET_X,
+            shadow_offset_y=TASK_PANEL_SHADOW_OFFSET_Y,
         )
-        self.screen.blit(shadow_surface, shadow_rect)
-
-        panel_surface = pygame.Surface(
-            (TASK_PANEL_WIDTH, TASK_PANEL_HEIGHT),
-            pygame.SRCALPHA,
-        )
-        pygame.draw.rect(
-            panel_surface,
-            TASK_PANEL_BACKGROUND_COLOR,
-            panel_surface.get_rect(),
-            border_radius=TASK_PANEL_BORDER_RADIUS,
-        )
-        pygame.draw.rect(
-            panel_surface,
-            TASK_PANEL_BORDER_COLOR,
-            panel_surface.get_rect(),
-            width=3,
-            border_radius=TASK_PANEL_BORDER_RADIUS,
-        )
-        self.screen.blit(panel_surface, (TASK_PANEL_X, TASK_PANEL_Y))
 
         title_font = pygame.font.SysFont("Microsoft YaHei", 22, bold=True)
         body_font = pygame.font.SysFont("Microsoft YaHei", 17)
